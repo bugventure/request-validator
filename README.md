@@ -1,6 +1,8 @@
 request-validator
 =================
 
+[![Build Status](https://travis-ci.org/bugventure/request-validator.svg?branch=master)](https://travis-ci.org/bugventure/request-validator)
+
 Flexible, schema-based request paramater validator middleware for express and connect.
 
 
