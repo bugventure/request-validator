@@ -17,7 +17,9 @@
     "keywords": [
         "request",
         "schema",
-        "validation"
+        "validation",
+        "express",
+        "middleware"
     ],
     "devDependencies": {
         "mocha": "1.21.x",
