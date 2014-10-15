@@ -1,3 +1,9 @@
+request-validator
+=================
+
+Flexible, schema-based request paramater validator middleware for express and connect.
+
+
 #### License
 
 The MIT License (MIT)
