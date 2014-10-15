@@ -8,9 +8,10 @@
         "test": "mocha"
     },
     "license": "MIT",
+    "homepage": "https://github.com/bugventure/request-validator",
     "repository": {
         "type": "git",
-        "url": "https://github.com/bugventure/request-validator"
+        "url": "git://github.com/bugventure/request-validator.git"
     },
     "bugs": "https://github.com/bugventure/request-validator/issues",
     "keywords": [
