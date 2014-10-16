@@ -7,32 +7,44 @@ var assert = require('assert'),
     noop = function () { };
 
 describe('middleware', function () {
-    it('throws on create if second arg is not a function', function () {
-        assert.throws(function () {
-            validator();
-        });
+    it('creates middleware with no arguments', function () {
+        assert(validator() instanceof Function);
+        assert.strictEqual(validator().length, 3);
     });
 
-    it('does not throw on create if furst arg is null', function () {
-        assert.doesNotThrow(function () {
-            validator(null, noop);
-        });
+    it('craetes middleware with one object argument', function () {
+        assert(validator({}) instanceof Function);
+        assert.strictEqual(validator({}).length, 3);
     });
 
-    it('returns a function on create', function () {
-        assert(validator(null, noop) instanceof Function);
+    it('creates middleware with one function argument', function () {
+        assert(validator(noop) instanceof Function);
+        assert.strictEqual(validator(noop).length, 3);
     });
 
-    it('middleware function has arity 3', function () {
-        var middleware = validator(null, noop);
-        assert.strictEqual(middleware.length, 3);
+    it('craetes middleware with multiple function arguments', function () {
+        assert(validator(noop, noop, noop) instanceof Function);
+        assert.strictEqual(validator(noop, noop, noop).length, 3);
+    });
 
-        middleware();
+    it('creates middleware with one object and multiple function arguments', function () {
+        assert(validator({}, noop) instanceof Function);
+        assert.strictEqual(validator({}, noop).length, 3);
+    });
+
+    it('calls next without a handler', function () {
+        var next = sinon.spy(),
+            middleware = validator();
+
+        middleware({}, {}, next);
+
+        assert(next.calledOnce);
+        assert.strictEqual(next.firstCall.args.length, 0);
     });
 
     it('calls handler as a callback', function () {
         var spy = sinon.spy(),
-            middleware = validator(null, spy),
+            middleware = validator(spy),
             req = {},
             res = {},
             next = noop;
@@ -45,11 +57,11 @@ describe('middleware', function () {
         assert.strictEqual(spy.firstCall.args[2], next);
     });
 
-    it('calls common handler', function () {
+    it('calls chained handlers', function () {
         var stub1 = sinon.stub(),
             stub2 = sinon.stub(),
             spy = sinon.spy(),
-            middleware = validator(null, spy),
+            middleware = validator(stub1, stub2, spy),
             req = {},
             res = {},
             next = noop;
@@ -58,18 +70,19 @@ describe('middleware', function () {
         stub1.callsArg(2);
         stub2.callsArg(2);
 
-        validator.use(stub1);
-        validator.use(stub2);
-
         middleware(req, res, next);
 
         assert(stub1.calledOnce);
         assert.strictEqual(stub1.firstCall.args[0], req);
         assert.strictEqual(stub1.firstCall.args[1], res);
 
+        assert(stub1.calledBefore(stub2));
+
         assert(stub2.calledOnce);
         assert.strictEqual(stub2.firstCall.args[0], req);
         assert.strictEqual(stub2.firstCall.args[1], res);
+
+        assert(stub2.calledBefore(spy));
 
         assert(spy.calledOnce);
         assert.strictEqual(spy.firstCall.args[0], req);
@@ -77,12 +90,12 @@ describe('middleware', function () {
         assert.strictEqual(spy.firstCall.args[2], next);
     });
 
-    it('does not call sucessive chained common handlers on error', function () {
+    it('does not call sucessive chained handlers on error', function () {
         var stub1 = sinon.stub(),
             stub2 = sinon.stub(),
             spy = sinon.spy(),
             err = new Error(),
-            middleware = validator(null, spy),
+            middleware = validator(stub1, stub2, spy),
             req = {},
             res = {},
             next = sinon.spy();
@@ -93,9 +106,6 @@ describe('middleware', function () {
         // simulate hypothetic forwarded next call
         stub2.callsArg(2);
 
-        validator.use(stub1);
-        validator.use(stub2);
-
         middleware(req, res, next);
 
         assert(stub1.calledOnce);
@@ -104,5 +114,71 @@ describe('middleware', function () {
 
         assert(next.calledOnce);
         assert.strictEqual(next.firstCall.args[0], err);
+
+        assert(stub1.calledBefore(next));
+    });
+});
+
+describe('req.validator', function () {
+    it('req.validator is a function', function () {
+        var spy = sinon.spy(),
+            middleware = validator(spy),
+            req = {},
+            res = {},
+            next = noop;
+
+        middleware(req, res, next);
+
+        assert(spy.calledOnce);
+        assert.strictEqual(spy.firstCall.args[0], req);
+        assert(req.validator instanceof Function);
+    });
+
+    it('req.validator(schema).validate is a function', function () {
+        var middleware = validator(),
+            req = {},
+            res = {},
+            next = noop;
+
+        middleware(req, res, next);
+
+        assert(req.validator().validate instanceof Function);
+    });
+
+    it('req.validator is a working validator copy', function () {
+        var middleware = validator(),
+            req = {};
+
+        middleware(req, {}, noop);
+
+        assert.notStrictEqual(req.validator, validator);
+
+        // assert.throws(function () {
+        //     req.validator('string').validate(123);
+        // });
+    });
+
+    it('req.validator.valid', function () {
+        var middleware = validator(),
+            req = {};
+
+        middleware(req, {}, noop);
+
+        assert.strictEqual(req.validator.valid, true);
+
+        middleware = validator({
+            name: 'prop1',
+            type: 'string'
+        });
+
+        // req = {
+        //     body: {
+        //         prop1: 123
+        //     }
+        // };
+
+        // middleware(req, {}, noop);
+
+        // assert.strictEqual(req.validator.valid, false);
     });
 });
