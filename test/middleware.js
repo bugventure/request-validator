@@ -153,9 +153,9 @@ describe('req.validator', function () {
 
         assert.notStrictEqual(req.validator, validator);
 
-        // assert.throws(function () {
-        //     req.validator('string').validate(123);
-        // });
+        assert.throws(function () {
+            req.validator('string').validate(123);
+        });
     });
 
     it('req.validator.valid', function () {
@@ -171,14 +171,14 @@ describe('req.validator', function () {
             type: 'string'
         });
 
-        // req = {
-        //     body: {
-        //         prop1: 123
-        //     }
-        // };
+        req = {
+            body: {
+                prop1: 123
+            }
+        };
 
-        // middleware(req, {}, noop);
+        middleware(req, {}, noop);
 
-        // assert.strictEqual(req.validator.valid, false);
+        assert.strictEqual(req.validator.valid, false);
     });
 });
