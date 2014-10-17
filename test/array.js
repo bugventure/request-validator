@@ -4,7 +4,7 @@
 var assert = require('assert'),
     validator = require('../index.js');
 
-describe.skip('type: array', function () {
+describe('type: array', function () {
     it('required', function () {
         var schema = {
             type: 'array',
