@@ -2,7 +2,8 @@
 'use strict';
 
 var assert = require('assert'),
-    equal = require('../lib/equal.js');
+    validator = require('../index.js'),
+    equal = validator.equal;
 
 describe('equal', function () {
     it('string', function () {
