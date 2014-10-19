@@ -168,7 +168,8 @@ describe('req.validator', function () {
 
         middleware = validator({
             name: 'prop1',
-            type: 'string'
+            type: 'string',
+            source: 'body'
         });
 
         req = {
@@ -180,5 +181,55 @@ describe('req.validator', function () {
         middleware(req, {}, noop);
 
         assert.strictEqual(req.validator.valid, false);
+    });
+
+    it('req.validator.error', function () {
+        var middleware = validator(),
+            req = {
+                body: {
+                    prop1: 123
+                }
+            };
+
+        middleware(req, {}, noop);
+
+        assert.strictEqual(req.validator.error, null);
+
+        middleware = validator({
+            name: 'prop1',
+            type: 'string',
+            source: 'body'
+        });
+
+        middleware(req, {}, noop);
+
+        assert(req.validator.error instanceof Error);
+    });
+
+    it('req.validator.params', function () {
+        var req = {
+                body: {
+                    prop1: 123
+                }
+            },
+            middleware = validator({
+                name: 'prop1',
+                type: 'number',
+                source: 'body'
+            });
+
+        middleware(req, {}, noop);
+
+        assert.strictEqual(req.validator.params, req.body.prop1);
+
+        middleware = validator({
+            type: 'number',
+            source: 'body'
+        });
+
+        middleware(req, {}, noop);
+
+        // cannot collect if no name is specified in schema
+        assert.strictEqual(req.validator.params, undefined);
     });
 });
