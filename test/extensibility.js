@@ -2,6 +2,7 @@
 'use strict';
 
 var assert = require('assert'),
+    sinon = require('sinon'),
     validator = require('../index.js');
 
 describe('extensibility', function () {
@@ -26,5 +27,77 @@ describe('extensibility', function () {
 
         assert.strictEqual(JSON.stringify(validator2.strings), JSON.stringify(validator.strings));
         assert.notStrictEqual(validator2.strings, validator.strings);
+
+        assert.notStrictEqual(validator2.use, validator.use);
+        assert(validator2.use instanceof Function);
+    });
+
+    describe('use', function () {
+        it('can register additional type validators', function () {
+            var myValidator = function (schema, value) {
+                    if (value !== 'hard-coded predefined value') {
+                        throw new Error();
+                    }
+                },
+                schema = {
+                    name: 'field1',
+                    type: 'string',
+                    message: 'predefined message'
+                },
+                validator2 = validator.create();
+
+            validator2.use('string', myValidator);
+
+            assert.doesNotThrow(function () {
+                validator2(schema).validate();
+            });
+
+            try {
+                validator2(schema).validate('non-matching string');
+                assert.fail();
+            }
+            catch (e) {
+                assert.strictEqual(e.message, 'field1: predefined message');
+            }
+        });
+
+        it('can register multiple additional type validators', function () {
+            var val1 = sinon.spy(),
+                val2 = sinon.spy(),
+                validator2 = validator.create();
+
+            validator2.use('number', val1, 'this arg is skipped', val2);
+
+            validator2({ type: 'number', required: true }).validate(123);
+
+            assert(val1.calledOnce);
+            assert(val2.calledOnce);
+
+            assert(val1.calledBefore(val2));
+        });
+
+        it('type validators on new instances do not affect the global instance', function () {
+            var myValidator = function (schema, value) {
+                    if (value !== 'hard-coded predefined value') {
+                        throw new Error();
+                    }
+                },
+                schema = {
+                    name: 'field1',
+                    type: 'string',
+                    message: 'predefined message'
+                },
+                validator2 = validator.create();
+
+            validator2.use('string', myValidator);
+
+            assert.throws(function () {
+                validator2(schema).validate('non-matching string');
+            });
+
+            assert.doesNotThrow(function () {
+                validator(schema).validate('non-matching string');
+            });
+        });
     });
 });
