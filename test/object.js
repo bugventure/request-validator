@@ -45,8 +45,13 @@ describe('type: object', function () {
             validator(schema).validate(Math.PI);
         });
 
+        assert.throws(function () {
+            validator('object').validate(Math.PI);
+        });
+
         assert.doesNotThrow(function () {
             validator(schema).validate({});
+            validator('object').validate({});
         });
     });
 

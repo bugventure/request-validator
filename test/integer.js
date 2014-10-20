@@ -53,8 +53,13 @@ describe('type: integer', function () {
             validator(schema).validate(Math.PI);
         });
 
+        assert.throws(function () {
+            validator('integer').validate(Math.PI);
+        });
+
         assert.doesNotThrow(function () {
             validator(schema).validate(13);
+            validator('integer').validate(13);
         });
     });
 

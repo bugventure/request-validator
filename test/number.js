@@ -50,10 +50,15 @@ describe('type: number', function () {
             validator(schema).validate({});
         });
 
+        assert.throws(function () {
+            validator('number').validate({});
+        });
+
         assert.doesNotThrow(function () {
             validator(schema).validate(13);
             validator(schema).validate(17.8);
             validator(schema).validate(Math.PI);
+            validator('number').validate(Math.PI);
         });
     });
 

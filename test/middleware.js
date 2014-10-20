@@ -13,8 +13,8 @@ describe('middleware', function () {
     });
 
     it('craetes middleware with one object argument', function () {
-        assert(validator({}) instanceof Function);
-        assert.strictEqual(validator({}).length, 3);
+        assert(validator({ type: 'string' }) instanceof Function);
+        assert.strictEqual(validator({ type: 'string' }).length, 3);
     });
 
     it('creates middleware with one function argument', function () {
@@ -28,8 +28,8 @@ describe('middleware', function () {
     });
 
     it('creates middleware with one object and multiple function arguments', function () {
-        assert(validator({}, noop) instanceof Function);
-        assert.strictEqual(validator({}, noop).length, 3);
+        assert(validator({ type: 'string' }, noop) instanceof Function);
+        assert.strictEqual(validator({ type: 'string' }, noop).length, 3);
     });
 
     it('calls next without a handler', function () {

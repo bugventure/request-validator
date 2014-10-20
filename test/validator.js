@@ -12,8 +12,8 @@ describe('validator', function () {
     });
 
     it('creates validator instance with one object argument', function () {
-        assert(validator({}).validate instanceof Function);
-        assert.strictEqual(validator({}).validate.length, 1);
+        assert(validator({ type: 'string' }).validate instanceof Function);
+        assert.strictEqual(validator({ type: 'string' }).validate.length, 1);
     });
 
     it('creates middleware with one function argument', function () {
@@ -27,7 +27,7 @@ describe('validator', function () {
     });
 
     it('creates middleware with one object and multiple function arguments', function () {
-        assert(validator({}, noop).validate instanceof Function);
-        assert.strictEqual(validator({}, noop).validate.length, 1);
+        assert(validator({ type: 'string' }, noop).validate instanceof Function);
+        assert.strictEqual(validator({ type: 'string' }, noop).validate.length, 1);
     });
 });
