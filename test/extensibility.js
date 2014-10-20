@@ -26,8 +26,5 @@ describe('extensibility', function () {
 
         assert.strictEqual(JSON.stringify(validator2.strings), JSON.stringify(validator.strings));
         assert.notStrictEqual(validator2.strings, validator.strings);
-
-        assert.strictEqual(typeof validator2.validateSchema, typeof validator.validateSchema);
-        assert.notStrictEqual(validator2.validateSchema, validator.validateSchema);
     });
 });
