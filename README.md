@@ -5,11 +5,8 @@ request-validator
 
 Flexible, schema-based request paramater validator middleware for express and connect.
 
-### Table of Contents
-
 <!-- MarkdownTOC -->
 
-- [Introduction](#introduction)
 - [Getting Started](#getting-started)
 - [Express Middleware](#express-middleware)
 - [Type Validation](#type-validation)
@@ -20,9 +17,7 @@ Flexible, schema-based request paramater validator middleware for express and co
 
 <!-- /MarkdownTOC -->
 
-### Introduction
-
-```
+```bash
 $ npm install request-validator --save
 ```
 
