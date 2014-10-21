@@ -10,9 +10,21 @@ Flexible, schema-based request paramater validator middleware for express and co
 - [Getting Started](#getting-started)
 - [Express Middleware](#express-middleware)
 - [Type Validation](#type-validation)
+    - [string](#string)
+    - [number](#number)
+    - [integer](#integer)
+    - [boolean](#boolean)
+    - [object](#object)
+    - [array](#array)
+    - [null](#null)
+    - [any](#any)
 - [Extensions](#extensions)
 - [Running Tests](#running-tests)
 - [Issues](#issues)
+- [Futures](#futures)
+    - [In-Schema Validator Functions](#in-schema-validator-functions)
+    - [Sanitizers](#sanitizers)
+    - [Browser Support](#browser-support)
 - [License](#license)
 
 <!-- /MarkdownTOC -->
@@ -27,6 +39,15 @@ $ npm install request-validator --save
 
 ### Type Validation
 
+#### string
+#### number
+#### integer
+#### boolean
+#### object
+#### array
+#### null
+#### any
+
 ### Extensions
 
 ### Running Tests
@@ -34,6 +55,70 @@ $ npm install request-validator --save
 ### Issues
 
 Please submit issues to the [request-validator issue tracker in GitHub](https://github.com/bugventure/request-validator/issues).
+
+### Futures
+
+#### In-Schema Validator Functions
+
+Ability to specify a custom validator function for particular objects directly in the shema:
+
+```javascript
+var schema = {
+    type: 'string',
+    // this will execute after successful default validation
+    validator: function (value) {
+        // validate basic SSN number
+        if (!/^\d{3}-\d{2}-\d{4}$/.test(value)) {
+            throw new Error();
+        }
+    }
+}
+
+validator(schema).validate('123-45-6789');
+```
+
+#### Sanitizers
+
+Extension points for input sanitization. Examples: converting from strings to numbers, trimming, whitelisting, etc.
+
+```javascript
+var schema = { 
+    type: 'string',
+    sanitizer: {
+        // this will execute before validation
+        before: function (value) {            
+            if (typeof value === 'string') {
+                value = value.trim();
+            }
+
+            return value;
+        },
+        // this will execute after succesful validation
+        after: function (value) {
+            return require('util').format('custom formatted: %s', value);
+        }
+    }
+}
+```
+
+#### Browser Support
+
+Ability to use validator in the browser.
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Validator in the browser</title>    
+</head>
+<body>
+    <script src="validator.js"></script>
+    <script>
+        validator({ type: 'string', required: true}).validate('abc');
+    </script>
+</body>
+</html>
+```
 
 ### License
 
