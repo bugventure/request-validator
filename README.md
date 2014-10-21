@@ -3,7 +3,7 @@ request-validator
 
 [![Build Status](https://travis-ci.org/bugventure/request-validator.svg?branch=master)](https://travis-ci.org/bugventure/request-validator)
 
-Flexible, schema-based request paramater validator middleware for express and connect.
+Flexible, schema-based request paramater validator middleware for express and connect. Fully implements [JSON Schema draft 4](http://json-schema.org/documentation.html).
 
 <!-- MarkdownTOC -->
 
@@ -29,11 +29,24 @@ Flexible, schema-based request paramater validator middleware for express and co
 
 <!-- /MarkdownTOC -->
 
+### Getting Started
+
 ```bash
 $ npm install request-validator --save
 ```
 
-### Getting Started
+```javascript
+var validator = require('request-validator');
+
+try {
+    validator({ type: 'string' }).validate('some value');
+}
+catch (e) {
+    console.log(e);
+}
+```
+
+
 
 ### Express Middleware
 
