@@ -1,12 +1,45 @@
 request-validator
 =================
 
+<!-- MarkdownTOC -->
+
+- [Introduction](#introduction)
+- [Getting Started](#getting-started)
+- [Express Middleware](#express-middleware)
+- [Type Validation](#type-validation)
+- [Extensions](#extensions)
+- [Running Tests](#running-tests)
+- [Issues](#issues)
+- [License](#license)
+
+<!-- /MarkdownTOC -->
+
+
 [![Build Status](https://travis-ci.org/bugventure/request-validator.svg?branch=master)](https://travis-ci.org/bugventure/request-validator)
 
 Flexible, schema-based request paramater validator middleware for express and connect.
 
+```bash
+$ npm install request-validator --save
+```
 
-#### License
+## Introduction
+
+## Getting Started
+
+## Express Middleware
+
+## Type Validation
+
+## Extensions
+
+## Running Tests
+
+## Issues
+
+Please submit issues to the [request-validator issue tracker in GitHub](https://github.com/bugventure/request-validator/issues).
+
+## License
 
 The MIT License (MIT)
 
