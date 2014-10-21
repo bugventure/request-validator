@@ -9,6 +9,7 @@ Flexible, schema-based request paramater validator middleware for express and co
 
 - [Getting Started](#getting-started)
 - [Express Middleware](#express-middleware)
+- [JSON Schema](#json-schema)
 - [Type Validation](#type-validation)
     - [string](#string)
     - [number](#number)
@@ -18,7 +19,8 @@ Flexible, schema-based request paramater validator middleware for express and co
     - [array](#array)
     - [null](#null)
     - [any](#any)
-- [Extensions](#extensions)
+- [External Schema Reference](#external-schema-reference)
+- [Extensibility](#extensibility)
 - [Running Tests](#running-tests)
 - [Issues](#issues)
 - [Futures](#futures)
@@ -50,6 +52,10 @@ catch (e) {
 
 ### Express Middleware
 
+### JSON Schema
+
+The validator module fully implements draft 4 of the [JSON Schema specification](http://json-schema.org/documentation.html). Check out this [excellent guide to JSON Schema](http://spacetelescope.github.io/understanding-json-schema/UnderstandingJSONSchema.pdf) by Michael Droettboom, et al.
+
 ### Type Validation
 
 #### string
@@ -61,7 +67,9 @@ catch (e) {
 #### null
 #### any
 
-### Extensions
+### External Schema Reference
+
+### Extensibility
 
 ### Running Tests
 
