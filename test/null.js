@@ -7,12 +7,11 @@ var assert = require('assert'),
 describe('type: null', function () {
     it('required', function () {
         var schema = {
-            type: 'null',
-            required: true
+            type: 'null'
         };
 
         assert.throws(function () {
-            validator(schema).validate();
+            validator(schema).validate(undefined);
         });
 
         assert.doesNotThrow(function () {

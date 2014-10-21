@@ -3,7 +3,7 @@ request-validator
 
 [![Build Status](https://travis-ci.org/bugventure/request-validator.svg?branch=master)](https://travis-ci.org/bugventure/request-validator)
 
-Flexible, schema-based request paramater validator middleware for express and connect. Fully implements [JSON Schema draft 4](http://json-schema.org/documentation.html).
+Flexible, schema-based request paramater validator middleware for express and connect. Fully implements the core and validation specs of [JSON Schema draft 4](http://json-schema.org/documentation.html).
 
 <!-- MarkdownTOC -->
 

@@ -7,8 +7,7 @@ var assert = require('assert'),
 describe('type: string', function () {
     it('required', function () {
         var schema = {
-            type: 'string',
-            required: true
+            type: 'string'
         };
 
         assert.throws(function () {
@@ -21,6 +20,21 @@ describe('type: string', function () {
 
         assert.doesNotThrow(function () {
             validator(schema).validate('abc');
+        });
+    });
+
+    it('nullable', function () {
+        var schema = {
+            type: ['string', 'null']
+        };
+
+        assert.throws(function () {
+            validator(schema).validate(undefined);
+        });
+
+        assert.doesNotThrow(function () {
+            validator(schema).validate(null);
+            validator(schema).validate('');
         });
     });
 
@@ -61,27 +75,6 @@ describe('type: string', function () {
         });
     });
 
-    it('empty', function () {
-        var schema = {
-            type: 'string',
-            required: true
-        };
-
-        assert.throws(function () {
-            validator(schema).validate('');
-        });
-
-        assert.doesNotThrow(function () {
-            validator(schema).validate('a');
-        });
-
-        schema.empty = true;
-
-        assert.doesNotThrow(function () {
-            validator(schema).validate('');
-        });
-    });
-
     it('enum', function () {
         var schema = {
             type: 'string',
@@ -94,21 +87,6 @@ describe('type: string', function () {
 
         assert.doesNotThrow(function () {
             validator(schema).validate('b');
-        });
-    });
-
-    it('length', function () {
-        var schema = {
-            type: 'string',
-            length: 4
-        };
-
-        assert.throws(function () {
-            validator(schema).validate('not the correct length');
-        });
-
-        assert.doesNotThrow(function () {
-            validator(schema).validate('abcd');
         });
     });
 

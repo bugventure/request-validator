@@ -40,8 +40,8 @@ describe('extensibility', function () {
                     }
                 },
                 schema = {
-                    name: 'field1',
-                    type: 'string',
+                    title: 'field1',
+                    type: ['string', 'null'],
                     message: 'predefined message'
                 },
                 validator2 = validator.create();
@@ -68,7 +68,7 @@ describe('extensibility', function () {
 
             validator2.use('number', val1, 'this arg is skipped', val2);
 
-            validator2({ type: 'number', required: true }).validate(123);
+            validator2({ type: 'number' }).validate(123);
 
             assert(val1.calledOnce);
             assert(val2.calledOnce);
@@ -83,7 +83,7 @@ describe('extensibility', function () {
                     }
                 },
                 schema = {
-                    name: 'field1',
+                    title: 'field1',
                     type: 'string',
                     message: 'predefined message'
                 },

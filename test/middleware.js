@@ -167,7 +167,7 @@ describe('req.validator', function () {
         assert.strictEqual(req.validator.valid, true);
 
         middleware = validator({
-            name: 'prop1',
+            title: 'prop1',
             type: 'string',
             source: 'body'
         });
@@ -196,7 +196,7 @@ describe('req.validator', function () {
         assert.strictEqual(req.validator.error, null);
 
         middleware = validator({
-            name: 'prop1',
+            title: 'prop1',
             type: 'string',
             source: 'body'
         });
@@ -213,7 +213,7 @@ describe('req.validator', function () {
                 }
             },
             middleware = validator({
-                name: 'prop1',
+                title: 'prop1',
                 type: 'number',
                 source: 'body'
             });

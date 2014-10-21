@@ -7,8 +7,7 @@ var assert = require('assert'),
 describe('type: number', function () {
     it('required', function () {
         var schema = {
-            type: 'number',
-            required: true
+            type: 'number'
         };
 
         assert.throws(function () {
@@ -22,6 +21,21 @@ describe('type: number', function () {
         assert.doesNotThrow(function () {
             validator(schema).validate(Math.PI);
             validator(schema).validate(123);
+        });
+    });
+
+    it('nullable', function () {
+        var schema = {
+            type: ['number', 'null']
+        };
+
+        assert.throws(function () {
+            validator(schema).validate(undefined);
+        });
+
+        assert.doesNotThrow(function () {
+            validator(schema).validate(null);
+            validator(schema).validate(Math.PI);
         });
     });
 
@@ -82,10 +96,10 @@ describe('type: number', function () {
         });
     });
 
-    it('min', function () {
+    it('minimum', function () {
         var schema = {
             type: 'number',
-            min: 7
+            minimum: 7
         };
 
         assert.throws(function () {
@@ -102,10 +116,35 @@ describe('type: number', function () {
         });
     });
 
-    it('max', function () {
+    it('exclusiveMinimum', function () {
         var schema = {
             type: 'number',
-            max: 77
+            minimum: 7,
+            exclusiveMinimum: true
+        };
+
+        assert.throws(function () {
+            validator(schema).validate(6);
+        });
+
+        assert.throws(function () {
+            validator(schema).validate(7);
+        });
+
+        assert.throws(function () {
+            validator(schema).validate(Math.PI);
+        });
+
+        assert.doesNotThrow(function () {
+            validator(schema).validate(8);
+            validator(schema).validate(999);
+        });
+    });
+
+    it('maximum', function () {
+        var schema = {
+            type: 'number',
+            maximum: 77
         };
 
         assert.throws(function () {
@@ -124,10 +163,33 @@ describe('type: number', function () {
         });
     });
 
-    it('divisibleBy', function () {
+    it('exclusiveMaximum', function () {
         var schema = {
             type: 'number',
-            divisibleBy: 7
+            maximum: 77,
+            exclusiveMaximum: true
+        };
+
+        assert.throws(function () {
+            validator(schema).validate(77);
+        });
+
+        assert.throws(function () {
+            validator(schema).validate(78);
+        });
+
+        assert.doesNotThrow(function () {
+            validator(schema).validate(-12);
+            validator(schema).validate(75);
+            validator(schema).validate(76);
+            validator(schema).validate(76.99999);
+        });
+    });
+
+    it('multipleOf', function () {
+        var schema = {
+            type: 'number',
+            multipleOf: 7
         };
 
         assert.throws(function () {
@@ -142,7 +204,7 @@ describe('type: number', function () {
 
         schema = {
             type: 'number',
-            divisibleBy: Math.PI
+            multipleOf: Math.PI
         };
 
         assert.throws(function () {

@@ -7,8 +7,7 @@ var assert = require('assert'),
 describe('type: boolean', function () {
     it('required', function () {
         var schema = {
-            type: 'boolean',
-            required: true
+            type: 'boolean'
         };
 
         assert.throws(function () {
@@ -22,6 +21,22 @@ describe('type: boolean', function () {
         assert.doesNotThrow(function () {
             validator(schema).validate(false);
             validator(schema).validate(true);
+        });
+    });
+
+    it('nullable', function () {
+        var schema = {
+            type: ['boolean', 'null']
+        };
+
+        assert.throws(function () {
+            validator(schema).validate(undefined);
+        });
+
+        assert.doesNotThrow(function () {
+            validator(schema).validate(true);
+            validator(schema).validate(false);
+            validator(schema).validate(null);
         });
     });
 

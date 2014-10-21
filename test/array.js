@@ -7,8 +7,7 @@ var assert = require('assert'),
 describe('type: array', function () {
     it('required', function () {
         var schema = {
-            type: 'array',
-            required: true
+            type: 'array'
         };
 
         assert.throws(function () {
@@ -20,6 +19,21 @@ describe('type: array', function () {
         });
 
         assert.doesNotThrow(function () {
+            validator(schema).validate([]);
+        });
+    });
+
+    it('nullable', function () {
+        var schema = {
+            type: ['array', 'null']
+        };
+
+        assert.throws(function () {
+            validator(schema).validate(undefined);
+        });
+
+        assert.doesNotThrow(function () {
+            validator(schema).validate(null);
             validator(schema).validate([]);
         });
     });
@@ -55,33 +69,10 @@ describe('type: array', function () {
         });
     });
 
-    it('length', function () {
+    it('minItems', function () {
         var schema = {
             type: 'array',
-            length: 3
-        };
-
-        assert.throws(function () {
-            validator(schema).validate([]);
-        });
-
-        assert.throws(function () {
-            validator(schema).validate([1, 2]);
-        });
-
-        assert.throws(function () {
-            validator(schema).validate([1, 2, 3, 4]);
-        });
-
-        assert.doesNotThrow(function () {
-            validator(schema).validate([1, 2, 3]);
-        });
-    });
-
-    it('minLength', function () {
-        var schema = {
-            type: 'array',
-            minLength: 3
+            minItems: 3
         };
 
         assert.throws(function () {
@@ -98,10 +89,10 @@ describe('type: array', function () {
         });
     });
 
-    it('maxLength', function () {
+    it('maxItems', function () {
         var schema = {
             type: 'array',
-            maxLength: 3
+            maxItems: 3
         };
 
         assert.throws(function () {
@@ -114,10 +105,10 @@ describe('type: array', function () {
         });
     });
 
-    it('items', function () {
+    it('items: object', function () {
         var schema = {
             type: 'array',
-            items: 'string'
+            items: { type: 'string' }
         };
 
         assert.throws(function () {
@@ -146,14 +137,11 @@ describe('type: array', function () {
             type: 'array',
             items: {
                 type: 'object',
-                properties: [{
-                    name: 'strProp',
-                    type: 'string',
-                    required: true
-                }, {
-                    name: 'boolProp',
-                    type: 'boolean'
-                }]
+                properties: {
+                    strProp: { type: 'string' },
+                    boolProp: { type: 'boolean' },
+                    required: ['strProp']
+                }
             }
         };
 
@@ -177,6 +165,97 @@ describe('type: array', function () {
                 strProp: 'value',
                 boolProp: false
             }]);
+        });
+    });
+
+    it('items: array', function () {
+        var schema = {
+            type: 'array',
+            items: [
+                { type: 'string' },
+                { type: 'number' }
+            ]
+        };
+
+        assert.throws(function () {
+            validator(schema).validate([]);
+        });
+
+        assert.throws(function () {
+            validator(schema).validate(['a']);
+        });
+
+        assert.throws(function () {
+            validator(schema).validate([1]);
+        });
+
+        assert.throws(function () {
+            validator(schema).validate([1, 'a']);
+        });
+
+        assert.doesNotThrow(function () {
+            validator(schema).validate(['a', 1]);
+            validator(schema).validate(['a', 1, null, 'b', 2]);
+        });
+    });
+
+    it('additionalItems', function () {
+        var schema = {
+            type: 'array',
+            additionalItems: false
+        };
+
+        assert.doesNotThrow(function () {
+            validator(schema).validate([]);
+            validator(schema).validate([1]);
+            validator(schema).validate([1, 'a', true]);
+        });
+
+        schema.items = { type: 'number' };
+
+        assert.throws(function () {
+            validator(schema).validate(['a']);
+        });
+
+        assert.doesNotThrow(function () {
+            validator(schema).validate([]);
+            validator(schema).validate([1]);
+            validator(schema).validate([1, 2, 3]);
+        });
+
+        schema.items = [
+            { type: 'string' },
+            { type: 'number' }
+        ];
+
+        assert.throws(function () {
+            validator(schema).validate(['a', 1, 2]);
+        });
+
+        assert.doesNotThrow(function () {
+            validator(schema).validate(['a', 1]);
+        });
+    });
+
+    it('uniqueItems', function () {
+        var schema = {
+            type: 'array',
+            items: { type: 'number' },
+            uniqueItems: false
+        };
+
+        assert.doesNotThrow(function () {
+            validator(schema).validate([1, 2, 1]);
+        });
+
+        schema.uniqueItems = true;
+
+        assert.throws(function () {
+            validator(schema).validate([1, 2, 1]);
+        });
+
+        assert.doesNotThrow(function () {
+            validator(schema).validate([1, 2, 3]);
         });
     });
 });

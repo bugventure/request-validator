@@ -18,12 +18,9 @@ describe('error', function () {
     it('throws when child invalid', function () {
         var schema = {
             type: 'object',
-            properties: [
-                {
-                    name: 'a',
-                    type: 'string'
-                }
-            ]
+            properties: {
+                a: { type: 'string' }
+            }
         };
 
         assert.throws(function () {
@@ -34,10 +31,10 @@ describe('error', function () {
     it('does not throw when schema is valid', function () {
         assert.doesNotThrow(function () {
             validator('string');
-            validator({ type: 'number', required: true });
+            validator({ type: 'number' });
             validator({ type: 'array', items: 'integer' });
-            validator({ type: 'array', items: { type: 'string', length: 2 } });
-            validator({ type: 'object', required: true, properties: [{ name: 'a', type: 'string' }] });
+            validator({ type: ['array', 'null'], items: { type: 'string', minLength: 2, maxLength: 2 } });
+            validator({ type: 'object', properties: { a: { type: 'string' }, b: 'boolean' } });
         });
     });
 
@@ -64,20 +61,19 @@ describe('error', function () {
         assert.throws(function () {
             validator({
                 type: 'array',
-                items: []
+                items: true
             });
         });
 
         assert.throws(function () {
             validator({
                 type: 'object',
-                properties: [
-                    {
-                        name: 'a',
+                properties: {
+                    a: {
                         type: 'object',
-                        properties: [{ type: 'string' }]
+                        properties: [{ type: 'string '}]
                     }
-                ]
+                }
             });
         });
     });
@@ -85,8 +81,7 @@ describe('error', function () {
     it('required message', function () {
         try {
             validator({
-                type: 'string',
-                required: true
+                type: 'string'
             }).validate();
 
             assert.fail();
@@ -97,9 +92,8 @@ describe('error', function () {
 
         try {
             validator({
-                name: 'field1',
-                type: 'string',
-                required: true
+                title: 'field1',
+                type: 'string'
             }).validate();
 
             assert.fail();
@@ -124,7 +118,7 @@ describe('error', function () {
 
         try {
             validator({
-                name: 'field1',
+                title: 'field1',
                 type: 'string'
             }).validate(123);
 
@@ -140,7 +134,6 @@ describe('error', function () {
         try {
             validator({
                 type: 'string',
-                required: true,
                 message: 'custom message'
             }).validate(123);
 
@@ -153,9 +146,8 @@ describe('error', function () {
 
         try {
             validator({
-                name: 'field1',
+                title: 'field1',
                 type: 'string',
-                required: true,
                 message: 'custom message'
             }).validate(123);
 
@@ -168,9 +160,8 @@ describe('error', function () {
 
         try {
             validator({
-                name: 'field1',
+                title: 'field1',
                 type: 'string',
-                required: true,
                 message: 'custom message'
             }).validate();
 
@@ -187,16 +178,14 @@ describe('error', function () {
         try {
             validator({
                 type: 'object',
-                properties: [
-                    {
-                        name: 'a',
+                properties: {
+                    a: {
                         type: 'string'
                     },
-                    {
-                        name: 'b',
+                    b: {
                         type: 'string'
                     }
-                ]
+                }
             }).validate({ a: 1, b: 2 });
 
             assert.fail();
