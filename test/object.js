@@ -87,10 +87,10 @@ describe('type: object', function () {
         });
     });
 
-    it('minPropeties', function () {
+    it('minProperties', function () {
         var schema = {
             type: 'object',
-            minPropeties: 2
+            minProperties: 2
         };
 
         assert.throws(function () {
@@ -143,7 +143,7 @@ describe('type: object', function () {
     it('additionalProperties', function () {
         var schema = {
             type: 'object',
-            propeties: {
+            properties: {
                 a: { type: 'string' },
                 b: { type: 'number' }
             },
@@ -176,8 +176,8 @@ describe('type: object', function () {
         var schema = {
             type: 'object',
             patternProperties: {
-                'a*': { type: 'string' },
-                'b*': { type: 'number' }
+                '^a': { type: 'string' },
+                '^b': { type: 'number' }
             }
         };
 
@@ -212,6 +212,11 @@ describe('type: object', function () {
         };
 
         assert.throws(function () {
+            // allowing null does not mean undefined is allowed too
+            validator(schema).validate();
+        });
+
+        assert.throws(function () {
             validator(schema).validate({});
         });
 
@@ -236,8 +241,6 @@ describe('type: object', function () {
         });
 
         assert.doesNotThrow(function () {
-            validator(schema).validate();
-
             validator(schema).validate(null);
 
             validator(schema).validate({

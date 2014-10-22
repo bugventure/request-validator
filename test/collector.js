@@ -43,44 +43,17 @@ describe('collector', function () {
         var data,
             schema = {
                 type: 'object',
-                properties: [
-                    {
-                        name: 'a',
-                        source: 'body'
-                    },
-                    {
-                        name: 'b',
-                        source: 'query'
-                    },
-                    {
-                        name: 'c',
-                        source: 'cookies'
-                    },
-                    {
-                        name: 'd',
-                        source: 'headers'
-                    },
-                    {
-                        name: 'e',
-                        source: 'some.nested.object'
-                    },
-                    {
-                        name: 'f',
-                        source: 'another.funky.place'
-                    },
-                    {
-                        name: 'g',
-                        source: 'arr.0'
-                    },
-                    {
-                        name: 'h',
-                        source: 'arr.1'
-                    },
-                    {
-                        name: 'x',
-                        source: 'nonexistent.key'
-                    }
-                ]
+                properties: {
+                    a: { source: 'body' },
+                    b: { source: 'query' },
+                    c: { source: 'cookies' },
+                    d: { source: 'headers' },
+                    e: { source: 'some.nested.object' },
+                    f: { source: 'another.funky.place' },
+                    g: { source: 'arr.0' },
+                    h: { source: 'arr.1' },
+                    x: { source: 'nonexistent.key' }
+                }
             },
             expected = {
                 a: req.body.a,

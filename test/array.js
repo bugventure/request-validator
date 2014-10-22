@@ -139,9 +139,9 @@ describe('type: array', function () {
                 type: 'object',
                 properties: {
                     strProp: { type: 'string' },
-                    boolProp: { type: 'boolean' },
-                    required: ['strProp']
-                }
+                    boolProp: { type: 'boolean' }
+                },
+                required: ['strProp']
             }
         };
 

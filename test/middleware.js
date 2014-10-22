@@ -209,13 +209,13 @@ describe('req.validator', function () {
     it('req.validator.params', function () {
         var req = {
                 body: {
-                    prop1: 123
+                    prop1: 123,
+                    prop2: 'abc'
                 }
             },
             middleware = validator({
-                title: 'prop1',
                 type: 'number',
-                source: 'body'
+                source: 'body.prop1'
             });
 
         middleware(req, {}, noop);
@@ -223,13 +223,76 @@ describe('req.validator', function () {
         assert.strictEqual(req.validator.params, req.body.prop1);
 
         middleware = validator({
-            type: 'number',
+            type: 'string',
+            source: 'body.prop3'
+        });
+
+        middleware(req, {}, noop);
+
+        assert.strictEqual(req.validator.params, undefined);
+
+        middleware = validator({
+            type: 'object',
+            properties: {
+                prop1: {
+                    type: 'number',
+                    source: 'body'
+                },
+                prop2: {
+                    type: 'string'
+                }
+            }
+        });
+
+        middleware(req, {}, noop);
+
+        assert.strictEqual(req.validator.params.prop1, req.body.prop1);
+        assert.strictEqual(req.validator.params.prop2, undefined);
+
+        middleware = validator({
+            type: 'object',
             source: 'body'
         });
 
         middleware(req, {}, noop);
 
-        // cannot collect if no name is specified in schema
-        assert.strictEqual(req.validator.params, undefined);
+        assert.deepEqual(req.validator.params, req.body);
+
+        middleware = validator({
+            type: 'array',
+            items: {
+                type: 'string',
+                source: 'body.prop2'
+            }
+        });
+
+        middleware(req, {}, noop);
+
+        assert.strictEqual(req.validator.params[0], req.body.prop2);
+
+        middleware = validator({
+            type: 'array',
+            items: [
+                {
+                    type: 'number',
+                    source: 'body.prop1'
+                },
+                {
+                    type: 'string',
+                    source: 'body.prop2'
+                },
+                {
+                    type: 'boolean',
+                    source: 'body.prop3'
+                }
+            ]
+        });
+
+        middleware(req, {}, noop);
+
+        assert.strictEqual(req.validator.params.length, 3);
+        assert.strictEqual(req.validator.params[0], req.body.prop1);
+        assert.strictEqual(req.validator.params[1], req.body.prop2);
+        assert.strictEqual(req.validator.params[2], undefined);
     });
 });

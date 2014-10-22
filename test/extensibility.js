@@ -49,7 +49,7 @@ describe('extensibility', function () {
             validator2.use('string', myValidator);
 
             assert.doesNotThrow(function () {
-                validator2(schema).validate();
+                validator2(schema).validate(null);
             });
 
             try {
