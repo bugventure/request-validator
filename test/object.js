@@ -199,26 +199,16 @@ describe('type: object', function () {
 
     it('nested graph', function () {
         var schema = {
-            type: 'object',
-            properties: [
-                {
-                    name: 'a',
-                    type: 'string',
-                    required: true
-                },
-                {
-                    name: 'b',
-                    type: 'number'
-                },
-                {
-                    name: 'c',
+            type: ['object', null],
+            properties: {
+                a: { type: 'string' },
+                b: { type: 'number' },
+                c: {
                     type: 'array',
-                    items: {
-                        type: 'boolean',
-                        required: true
-                    }
+                    items: { type: 'boolean' }
                 }
-            ]
+            },
+            required: ['a']
         };
 
         assert.throws(function () {
@@ -258,8 +248,7 @@ describe('type: object', function () {
 
             validator(schema).validate({
                 a: 'abc',
-                b: 0,
-                c: null
+                b: 0
             });
 
             validator(schema).validate({
