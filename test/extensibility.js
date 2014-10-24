@@ -99,5 +99,48 @@ describe('extensibility', function () {
                 validator(schema).validate('non-matching string');
             });
         });
+
+        it('extended type validators apply recursively', function () {
+            var myValidator = function (schema, value) {
+                    if (value !== 'hard-coded predefined value') {
+                        throw new Error();
+                    }
+                },
+                schema = {
+                    type: 'object',
+                    properties: {
+                        arr: {
+                            type: 'array',
+                            items: {
+                                type: 'object',
+                                properties: {
+                                    field1: {
+                                        type: 'string'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                validator2 = validator.create();
+
+            validator2.use('string', myValidator);
+
+            assert.throws(function () {
+                validator2(schema).validate({
+                    arr: [{
+                        field1: 'non-matching string'
+                    }]
+                });
+            });
+
+            assert.doesNotThrow(function () {
+                validator2(schema).validate({
+                    arr: [{
+                        field1: 'hard-coded predefined value'
+                    }]
+                });
+            });
+        });
     });
 });
