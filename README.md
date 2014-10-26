@@ -1,7 +1,7 @@
 request-validator
 =================
 
-[![Build Status](https://travis-ci.org/bugventure/request-validator.svg?branch=master)](https://travis-ci.org/bugventure/request-validator)
+[![Build][travis-img]][travis-url] [![Coverage][coveralls-img]][coveralls-url] [![Downloads][downloads-img]][npm-url] [![NPM version][npm-img]][npm-url]
 
 Flexible, schema-based request paramater validator middleware for express and connect. Fully implements the core and validation specs of [JSON Schema draft 4](http://json-schema.org/documentation.html).
 
@@ -152,3 +152,11 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+[travis-url]: https://travis-ci.org/bugventure/request-validator
+[travis-img]: https://travis-ci.org/bugventure/request-validator.svg?branch=master
+[npm-url]: https://www.npmjs.org/package/request-validator
+[npm-img]: http://img.shields.io/npm/v/request-validator.svg
+[downloads-img]: http://img.shields.io/npm/dm/request-validator.svg
+[converalls-img]: https://img.shields.io/coveralls/bugventure/request-validator.svg
+[coveralls-url]: https://coveralls.io/r/bugventure/request-validator
