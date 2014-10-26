@@ -4,7 +4,7 @@
 var assert = require('assert'),
     validator = require('../index.js');
 
-describe.skip('error', function () {
+describe('error', function () {
     it('throws when invalid', function () {
         var schema = {
             type: 'string'
@@ -171,38 +171,6 @@ describe.skip('error', function () {
             // does not apply for required fields
             assert.strictEqual(e.key, 'field1');
             assert.strictEqual(e.message, 'field1: required');
-        }
-    });
-
-    it('nested messages', function () {
-        try {
-            validator({
-                type: 'object',
-                properties: {
-                    a: {
-                        type: 'string'
-                    },
-                    b: {
-                        type: 'string'
-                    }
-                }
-            }).validate({ a: 1, b: 2 });
-
-            assert.fail();
-        }
-        catch (e) {
-            assert.strictEqual(e.key, undefined);
-            assert.strictEqual(e.message, 'anonymous: invalid');
-            assert(e.errors instanceof Array);
-            assert.strictEqual(e.errors.length, 2);
-
-            assert(e.errors[0] instanceof Error);
-            assert.strictEqual(e.errors[0].key, 'a');
-            assert.strictEqual(e.errors[0].message, 'a: invalid');
-
-            assert(e.errors[1] instanceof Error);
-            assert.strictEqual(e.errors[1].key, 'b');
-            assert.strictEqual(e.errors[1].message, 'b: invalid');
         }
     });
 });

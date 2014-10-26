@@ -142,5 +142,83 @@ describe('extensibility', function () {
                 });
             });
         });
+
+        it('extended type validators are called after default validators', function () {
+            var myValidator = sinon.spy(),
+                schema = {
+                    type: 'string'
+                },
+                validator2 = validator.create();
+
+            validator2.use('string', myValidator);
+
+            assert.throws(function () {
+                // validation must fail here and prevent further validator calls
+                validator2(schema).validate(123);
+            });
+
+            assert(!myValidator.called);
+
+            assert.doesNotThrow(function () {
+                validator2(schema).validate('abc');
+            });
+
+            assert(myValidator.calledOnce);
+        });
+
+        it('extended type validators on object apply recursively', function () {
+            var myValidator = sinon.spy(function (schema, value) {
+                    if (schema.applyCustomRule &&
+                        value.myCustomProperty !== 'abc') {
+                        throw new Error();
+                    }
+                }),
+                schema = {
+                    type: 'object',
+                    properties: {
+                        someProperty: {
+                            type: 'object',
+                            applyCustomRule: true,
+                            properties: {
+                                myCustomProperty: {
+                                    type: 'string'
+                                }
+                            }
+                        }
+                    }
+                },
+                validator2 = validator.create();
+
+            validator2.use('object', myValidator);
+
+            assert.throws(function () {
+                validator2(schema).validate({
+                    someProperty: {
+                        myCustomProperty: 'abcd'
+                    }
+                });
+            });
+
+            // Custom validator is called only once even though
+            // we have 2 objects in the graph. This is because
+            // the fist call threw and prevented further validation.
+            assert(myValidator.calledOnce);
+            assert(myValidator.threw());
+
+            myValidator.reset();
+
+            assert.doesNotThrow(function () {
+                validator2(schema).validate({
+                    someProperty: {
+                        myCustomProperty: 'abc'
+                    }
+                });
+            });
+
+            // Custom validator is called twice because we have
+            // two objects in the graph. Validation ran to the end.
+            assert(myValidator.calledTwice);
+            assert(!myValidator.threw());
+        });
     });
 });
