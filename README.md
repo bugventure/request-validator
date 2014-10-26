@@ -158,5 +158,5 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 [npm-url]: https://www.npmjs.org/package/request-validator
 [npm-img]: http://img.shields.io/npm/v/request-validator.svg
 [downloads-img]: http://img.shields.io/npm/dm/request-validator.svg
-[converalls-img]: https://img.shields.io/coveralls/bugventure/request-validator.svg
+[coveralls-img]: https://img.shields.io/coveralls/bugventure/request-validator.svg
 [coveralls-url]: https://coveralls.io/r/bugventure/request-validator
