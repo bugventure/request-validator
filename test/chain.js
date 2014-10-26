@@ -63,4 +63,32 @@ describe('chain', function () {
         assert(next.calledOnce);
         assert.strictEqual(next.firstCall.args[0], err);
     });
+
+    it('calls next with error if step function throws', function () {
+        var err = new Error(),
+            step1 = sinon.stub().throws(err),
+            step2 = sinon.stub().callsArg(2),
+            next = sinon.spy(),
+            chain = validator.chain(step1, step2);
+
+        chain(req, res, next);
+
+        assert(step1.calledOnce);
+        assert(!step2.called);
+        assert(next.calledOnce);
+        assert.strictEqual(next.firstCall.args[0], err);
+    });
+
+    it('calls next with no error if step function is not a function', function () {
+        var step1 = sinon.stub().callsArg(2),
+            step2 = 'absolutely no function',
+            next = sinon.spy(),
+            chain = validator.chain(step1, step2);
+
+        chain(req, res, next);
+
+        assert(step1.calledOnce);
+        assert(next.calledOnce);
+        assert.strictEqual(next.firstCall.args[0], undefined);
+    });
 });

@@ -66,6 +66,7 @@ describe('type: object', function () {
         assert.doesNotThrow(function () {
             validator(schema).validate({});
             validator('object').validate({});
+            validator({ type: 'object', properties: {} }, {});
         });
     });
 
@@ -169,6 +170,42 @@ describe('type: object', function () {
 
         assert.doesNotThrow(function () {
             validator(schema).validate({ a: 'abc', b: 123 });
+            validator({ type: 'object', additionalProperties: false }).validate({});
+        });
+    });
+
+    it('additionalProperties with patternProperties', function () {
+        var schema = {
+            type: 'object',
+            properties: {
+                a: { type: 'string' }
+            },
+            patternProperties: {
+                '^b': { type: 'number' }
+            },
+            additionalProperties: true
+        };
+
+        assert.doesNotThrow(function () {
+            validator(schema).validate({ a: 'abc' });
+            validator(schema).validate({ b: 123 });
+            validator(schema).validate({ a: 'abc', b: 123, bar: Math.E, baz: Math.PI });
+            validator(schema).validate({ a: 'abc', baz: 123, c: true });
+        });
+
+        schema.additionalProperties = false;
+
+        assert.throws(function () {
+            validator(schema).validate({ c: true });
+        });
+
+        assert.throws(function () {
+            validator(schema).validate({ a: 'abc', bar: 123, c: true });
+        });
+
+        assert.doesNotThrow(function () {
+            validator(schema).validate({ a: 'abc', baz: 123 });
+            validator({ type: 'object', additionalProperties: false }).validate({});
         });
     });
 

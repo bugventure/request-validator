@@ -71,4 +71,69 @@ describe('collector', function () {
 
         assert.deepEqual(data, expected);
     });
+
+    it('collects into multiple array items', function () {
+        var schema = {
+                type: 'array',
+                items: [
+                    {
+                        type: 'string',
+                        source: 'query.b'
+                    },
+                    {
+                        type: 'number',
+                        source: 'another.funky.place.f'
+                    }
+                ]
+            },
+            expectd = [
+                req.query.b,
+                req['another.funky'].place.f
+            ],
+            data = collector(schema, req);
+
+        assert.deepEqual(data, expectd);
+    });
+
+    it('collects into a single array item', function () {
+        var schema = {
+                type: 'array',
+                items: {
+                    type: 'object',
+                    properties: {
+                        a: {
+                            type: 'number',
+                            source: 'body'
+                        },
+                        e: {
+                            type: 'number',
+                            source: 'some.nested.object'
+                        }
+                    }
+                }
+            },
+            expected = [
+                {
+                    a: req.body.a,
+                    e: req.some.nested.object.e
+                }
+            ],
+            data = collector(schema, req);
+
+        assert.deepEqual(data, expected);
+    });
+
+    it('returns empty object when no source specified', function () {
+        var schema = { type: 'object' },
+            data = collector(schema, req);
+
+        assert.deepEqual(data, {});
+    });
+
+    it('returns empty array when no item source specified', function () {
+        var schema = { type: 'array' },
+            data = collector(schema, req);
+
+        assert.deepEqual(data, []);
+    });
 });

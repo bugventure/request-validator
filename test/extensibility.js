@@ -33,6 +33,18 @@ describe('extensibility', function () {
     });
 
     describe('use', function () {
+        it('throws if no data type is specified', function () {
+            assert.throws(function () {
+                validator.use();
+            });
+        });
+
+        it('throws if not at least one function argument is specified', function () {
+            assert.throws(function () {
+                validator.use('string');
+            });
+        });
+
         it('can register additional type validators', function () {
             var myValidator = function (schema, value) {
                     if (value !== 'hard-coded predefined value') {
@@ -74,6 +86,19 @@ describe('extensibility', function () {
             assert(val2.calledOnce);
 
             assert(val1.calledBefore(val2));
+        });
+
+        it('can register validators for new types', function () {
+            var validatorFunc = sinon.spy(),
+                validator2 = validator.create();
+
+            validator2.use('myNewType', validatorFunc);
+
+            assert.doesNotThrow(function () {
+                validator2({ type: 'myNewType' }).validate('validated with new type validator');
+            });
+
+            assert(validatorFunc.calledOnce);
         });
 
         it('type validators on new instances do not affect the global instance', function () {
