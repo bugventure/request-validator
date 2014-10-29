@@ -15,6 +15,14 @@ describe('error', function () {
         });
     });
 
+    it.skip('throws if no type validator is found', function () {
+        var schema = { type: 'unknown type' };
+
+        assert.throws(function () {
+            validator(schema);
+        });
+    });
+
     it('throws when child invalid', function () {
         var schema = {
             type: 'object',

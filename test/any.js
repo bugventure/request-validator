@@ -22,12 +22,4 @@ describe('any', function () {
             validator(schema).validate([]);
         });
     });
-
-    it.skip('throws if no type validator is found', function () {
-        var schema = { type: 'unknown type' };
-
-        assert.throws(function () {
-            validator(schema);
-        });
-    });
 });
