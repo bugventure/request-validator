@@ -16,15 +16,22 @@ Flexible, schema-based request paramater validator middleware for express and co
     - [Parameter Source](#parameter-source)
 - [JSON Schema](#json-schema)
 - [Type Validation](#type-validation)
-    - [string](#string)
-    - [number](#number)
-    - [integer](#integer)
-    - [boolean](#boolean)
-    - [object](#object)
-    - [array](#array)
-    - [null](#null)
-    - [any](#any)
+    - [`string`](#string)
+    - [`number`](#number)
+    - [`integer`](#integer)
+    - [`boolean`](#boolean)
+    - [`object`](#object)
+    - [`array`](#array)
+    - [`null`](#null)
+    - [`any`](#any)
+- [Multi Schema Validation & Negation](#multi-schema-validation--negation)
+    - [`allOf`](#allof)
+    - [`anyOf`](#anyof)
+    - [`oneOf`](#oneof)
+    - [`not`](#not)
+- [Schema Reference Using `$ref`](#schema-reference-using-ref)
 - [Extensibility](#extensibility)
+- [Integration with Other Validators](#integration-with-other-validators)
 - [Running Tests](#running-tests)
 - [Issues](#issues)
 - [Futures](#futures)
@@ -111,7 +118,7 @@ app.post('/comments', validator(schema, function (req, res, next) {
 }));
 ```
 
-Additionally, the `req.validator` object is actually a copy of the validator builder function and can be used to further validate data in the context of a request middleware:
+The `req.validator` object is actually a copy of the validator builder function and can be used to further validate data in the context of a request middleware:
 
 ```javascript
 app.post('/comments', validator(schema, function (req, res, next) {
@@ -124,24 +131,270 @@ app.post('/comments', validator(schema, function (req, res, next) {
 }));
 ```
 
+You can chain multiple middleware functions into a single validator middleware:
+
+```javascript
+app.post('/comments', validator(schema, 
+    function (req, res, next) { }, 
+    function (req, res, next) { }));
+```
+
+These will be called successively just like normal express middleware.
+
 ### Parameter Source
+
+When used as middleware, the validator gathers and validates request parameters based on the `source` property in the JSON schema.
+
+```javascript
+var schema = {
+    type: 'object',
+    properties: {
+        author: {
+            type: 'string',
+            source: 'body'      // maps to `req.body.author`
+        },
+        token: {
+            type: 'string',
+            source: 'query'     // maps to `req.query.token`
+        },
+        sid: {
+            type: 'string',
+            source: 'cookies'   // maps to `req.cookies.sid`
+        },
+        createdAt: {
+            type: 'string',
+            source: 'params'    // maps to `req.params.createdAt`
+        }
+    }
+}
+
+app.post('/comments', validator(schema, function (req, res, next) {
+    var params = req.validator.params;
+    console.log(params);
+
+    /*
+    Request parameters gathered by the validator grouped in an object.
+
+    {
+        author: 'John Doe',
+        token: '21ec20203aea4069a2dd08002b30309d',
+        sid: '123e4567',
+        createdAt: '2014-10-30T13:52:21.127Z'
+    }
+    */
+}));
+```
 
 ## JSON Schema
 
 The validator module fully implements draft 4 of the [JSON Schema specification](http://json-schema.org/documentation.html). Check out this [excellent guide to JSON Schema](http://spacetelescope.github.io/understanding-json-schema/UnderstandingJSONSchema.pdf) by Michael Droettboom, et al.
 
+A schema is a JavaScript object that specifies the type and structure of another JavaScript object or value. Here are some valid schema objects:
+
+Schema | Matches
+------ | -------
+`{}` | any value
+`{ type: 'string' }` | a JavaScript string
+`{ type: 'number' } ` | a JavaScript number
+`{ type: ['string', 'null'] }` | either a string or `null`
+`{ type: 'object' }` | a JavaScript object
+`{ type: 'array', items: { type: 'string' } }` | an array containing strings
+
 ## Type Validation
 
-### string
-### number
-### integer
-### boolean
-### object
-### array
-### null
-### any
+### `string`
+
+```javascript
+{
+    type: 'string',     // match a string
+    minLength: 3,       // with minimum length 3 characters
+    maxLength: 10,      // with maximum length 10 character
+    pattern: '^\\w$'    // matching the regex /^\w$/
+}
+```
+
+
+### `number`
+
+```javascript
+{
+    type: 'number',         // match a number
+    minimum: 0,             // with minimum value 0
+    maximum: 10,            // with maximum value 10
+    exclusiveMinimum: true, // exclude the min value (default: false)
+    exclusiveMaximum: true, // exclude the max value (default: false)
+    multipleOf: 2           // the number must be a multiple of 2
+}
+```
+
+### `integer`
+
+Same as `number`, but matches integers only.
+
+```javascript
+{
+    type: 'integer',        // match an integer number
+    minimum: 0,             // with minimum value 0
+    maximum: 10,            // with maximum value 10
+    exclusiveMinimum: true, // exclude the min value (default: false)
+    exclusiveMaximum: true, // exclude the max value (default: false)
+    multipleOf: 2           // the number must be a multiple of 2
+}
+```
+
+### `boolean`
+
+```javascript
+{
+    type: 'boolean'     // match a Boolean value
+}
+```
+
+### `object`
+
+```javascript
+{
+    type: 'object',                     // match a JavaScript object
+    minProperties: 2,                   // having at least 2 properties
+    maxProperties: 5,                   // and at most 5 properties
+    required: ['id', 'name'],           // where `id` and `name` are required
+    properties: {                       // and the properties are as follows
+        id: { type: 'string' },
+        name: { type: 'string' },
+        price: { 
+            type: 'number',
+            mininum: 0
+        },
+        available: { type: 'boolean' }
+    },
+    patternProperties: {                // with additional properties, where
+        '^unit-\w+$': {                 // the keys match the given regular
+            type: 'number',             // expression and the values are
+            minimum: 0                  // numbers with minimum value of 0
+        }                               
+    },
+    additionalProperties: false         // do not allow any other properties
+}                                       // (default: true)
+```
+
+Alternatively `additionalProperties` can be an object defining a schema, where each additional property must conform to the specified schema.
+
+```javascript
+{
+    type: 'object',             // match a JavaScript object
+    additionalProperties: {     // with all properties containing
+        type: 'string'          // string values
+    }
+}
+```
+
+### `array`
+
+```javascript
+{
+    type: 'array',          // match a JavaScript array
+    minItems: 1,            // with minimum 1 item
+    maxItems: 5,            // and maximum 5 items
+    uniqueItems: true,      // where items are unique
+    items: {                // and each item is a number
+        type: 'number'
+    }
+}
+```
+
+Alternatively, you can specify multiple item schemas for positional matching.
+
+```javascript
+{
+    type: 'array',              // match a JavaScript array
+    items: [                    // containing exactly 3 items
+        { type: 'string' },     // where first item is a string
+        { type: 'number' },     // and second item is a number
+        { type: 'boolean' }     // and third item is a Boolean value
+    ]
+}
+```
+
+### `null`
+
+```javascript
+{
+    type: 'null'    // match a null value
+}
+```
+
+### `any`
+
+```javascript
+{
+    type: 'any'     // equivalent to `{}` (matches any value)
+}
+```
+
+## Multi Schema Validation & Negation
+
+### `allOf`
+
+```javascript
+{
+    allOf: [                    // match a number conforming to both schemas,
+        {                       // i.e. a numeric value between 3 and 5
+            type: 'number',
+            minimum: 0,
+            maximum: 5
+        },
+        { 
+            type: 'number',
+            minimum: 3,
+            maximum: 10
+        }
+    ]
+}
+```
+
+### `anyOf`
+
+```javascript
+{
+    anyOf: [                    // match either a string or a number
+        { type: 'string' },
+        { type: 'number' }
+    ]
+}
+```
+
+### `oneOf`
+
+```javascript
+{
+    oneOf: [                    // match exacly one of those schemas,
+        {                       // i.e. a number that is less than 3
+            type: 'number',     // or greater than 5, but not a number
+            maximum: 5          // between 3 and 5
+        },
+        { 
+            type: 'number', 
+            minimum: 3 
+        }
+    ]
+}
+```
+
+### `not`
+
+```javascript
+{
+    not: {                  // match a value that is not a JavaScript object
+        type: 'object'
+    }
+}
+```
+
+## Schema Reference Using `$ref`
 
 ## Extensibility
+
+## Integration with Other Validators
 
 ## Running Tests
 
