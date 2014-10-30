@@ -416,9 +416,142 @@ Using references, it becomes possible to validate complex object graphs using re
 
 ## Extensibility
 
+You can extend `request-validator` with custom validation functions that match a particular type. A custom validator function must throw an exception if validation fails. It accepts two parameters - the schema object and the value to validate.
+
+```javascript
+validator.use('type', function (schema, value) {
+    // validate my string value and throw if it does not match schema
+});
+```
+
+By default, custom validator functions are registered on the global validator object. If you want to group custom validators by context, you can create new validator instances using `validator.create()` and use those for validation.
+
+```javascript
+var customersValidator = validator.create(),
+    productsValidator = validator.create();
+
+customersValidator.use('string', function validateCompany(schema, value) { });
+
+productsValidator.use('string', function validateCategory(schema, value) { });
+
+// both validators have their own custom validation 
+// functions that will not be mixed
+```
+
+**NOTE**: Custom validators are run for every value whose schema has a matching `type`. This means you have to be careful not to validate irrelevant values. Always use additional format properties in the schema to identify the custom validation rules you care about.
+
+```javascript
+validator.use('string', function myDateValidator(schema, value) { 
+    // make sure we validate only strings that 
+    // have the date format specified in the schema
+    if (schema.format === 'date') {
+        if (isNaN(new Date(value).getTime())) {
+            throw new Error('Invalid date.');
+        }
+    }
+});
+
+var schema = {
+    type: 'object',
+    properties: {
+        a: { type: 'string' },
+        b: { 
+            type: 'object',
+            properties: {
+                c: { 
+                    type: 'string',
+                    format: 'date'
+                }
+            }
+        }
+    }
+};
+
+var myObject = {
+    a: 'abc',
+    b: {
+        c: '10/30/2014'
+    }
+};
+
+validator(schema).validate(myObject);
+// `myValidator` will be run both for `myObject.a` and `myObject.b.c`, but
+// only the latter value will actually go through validation.
+```
+
 ## Integration with Other Validators
 
+Due to its extensibility, `request-validator` can easily be combined with other validation modules for robust data validation. Here is an example of extensive string validation using the excellent [`validator`][validator] module.
+
+```javascript
+var requestValidator = require('request-validator'),
+    stringValidator = require('validator'),
+    app = require('express')();
+
+// register a custom string validator for format validation
+requestValidator.use('string', function (schema, value) {
+    var valid = false;    
+    if (schema.type === 'string' && schema.format) {
+        switch (schema.format) {
+            case 'URL':
+                valid = stringValidator.isURL(value);
+                break;
+
+            case 'FQDN':
+                valid = stringValidator.isFQDN(value);
+                break;
+
+            case 'IP':
+                valid = stringValidator.isIP(value);
+                break;
+
+            //... write add more format validators
+        }
+
+        if (!valid) {
+            throw new Error('Format validation failed.');
+        }
+    }
+});
+
+// schema specifies properties with custom rules 
+// that will trigger above format validator
+var schema = {
+    type: 'object',
+    properties: {
+        url: {
+            type: 'string',
+            source: 'body',
+            format: 'URL'
+        },
+        domain: {
+            type: 'string',
+            source: 'body',
+            format: 'FQDN'
+        },
+        ip: {
+            type: 'string',
+            source: 'body',
+            format: 'IP'
+        }
+    }
+};
+
+app.post('/', requestValidator(schema, function (req, res, next) {
+    var params = req.validator.params;
+    // params is validated with the above custom format validator
+}));
+```
+
 ## Running Tests
+
+To run [mocha][mocha] tests:
+
+```bash
+$ npm test
+```
+
+Source code coverage is provided by [istanbul][istanbul] and visible on [coveralls.io][coveralls-url].
 
 ## Issues
 
@@ -545,3 +678,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 [coveralls-img]: https://img.shields.io/coveralls/bugventure/request-validator.svg
 [coveralls-url]: https://coveralls.io/r/bugventure/request-validator
 [metaschema]: http://json-schema.org/schema
+[validator]: https://www.npmjs.org/package/validator
+[istanbul]: https://www.npmjs.org/package/istanbul
+[mocha]: http://mochajs.org/
