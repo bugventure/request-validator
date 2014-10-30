@@ -1,31 +1,31 @@
 {
-    "name": "request-validator",
-    "version": "0.1.2",
-    "description": "Schema-based request validation middleware for express and connect.",
-    "author": "Veli Pehlivanov <bugventure@gmail.com>",
-    "main": "index.js",
-    "scripts": {
-        "test": "mocha",
-        "coverage": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/.bin/coveralls && rm -rf ./coverage"
-    },
-    "license": "MIT",
-    "homepage": "https://github.com/bugventure/request-validator",
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/bugventure/request-validator.git"
-    },
-    "bugs": "https://github.com/bugventure/request-validator/issues",
-    "keywords": [
-        "request",
-        "schema",
-        "validation",
-        "express",
-        "middleware"
-    ],
-    "devDependencies": {
-        "mocha": "1.x",
-        "sinon": "1.x",
-        "coveralls": "2.x",
-        "istanbul": "0.x"
-    }
+  "name": "request-validator",
+  "version": "0.2.0",
+  "description": "Schema-based request validation middleware for express and connect.",
+  "author": "Veli Pehlivanov <bugventure@gmail.com>",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha",
+    "coverage": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/.bin/coveralls && rm -rf ./coverage"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/bugventure/request-validator",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/bugventure/request-validator.git"
+  },
+  "bugs": "https://github.com/bugventure/request-validator/issues",
+  "keywords": [
+    "request",
+    "schema",
+    "validation",
+    "express",
+    "middleware"
+  ],
+  "devDependencies": {
+    "mocha": "1.x",
+    "sinon": "1.x",
+    "coveralls": "2.x",
+    "istanbul": "0.x"
+  }
 }
