@@ -59,13 +59,8 @@ describe('type: object', function () {
             validator(schema).validate(Math.PI);
         });
 
-        assert.throws(function () {
-            validator('object').validate(Math.PI);
-        });
-
         assert.doesNotThrow(function () {
             validator(schema).validate({});
-            validator('object').validate({});
             validator({ type: 'object', properties: {} }, {});
         });
     });
@@ -174,6 +169,27 @@ describe('type: object', function () {
         });
     });
 
+    it('additionalProperties as schema', function () {
+        var schema = {
+            type: 'object',
+            properties: {
+                a: { type: 'string' },
+                b: { type: 'number' }
+            },
+            additionalProperties: {
+                type: 'boolean'
+            }
+        };
+
+        assert.throws(function () {
+            validator(schema).validate({ a: 'abc', b: 123, c: 123 });
+        });
+
+        assert.doesNotThrow(function () {
+            validator(schema).validate({ a: 'abc', b: 123, c: false });
+        });
+    });
+
     it('additionalProperties with patternProperties', function () {
         var schema = {
             type: 'object',
@@ -236,7 +252,7 @@ describe('type: object', function () {
 
     it('nested graph', function () {
         var schema = {
-            type: ['object', null],
+            type: ['object', 'null'],
             properties: {
                 a: { type: 'string' },
                 b: { type: 'number' },

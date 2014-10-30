@@ -91,4 +91,21 @@ describe('chain', function () {
         assert(next.calledOnce);
         assert.strictEqual(next.firstCall.args[0], undefined);
     });
+
+    it('calls steps multiple times', function () {
+        var step1 = sinon.stub().callsArg(2),
+            step2 = sinon.stub().callsArg(2),
+            next = sinon.spy(),
+            chain = validator(step1, step2),
+            callCount = 2,
+            i;
+
+        for (i = 0; i < callCount; i++) {
+            chain(req, res, next);
+
+            assert.strictEqual(step1.callCount, i + 1);
+            assert.strictEqual(step2.callCount, i + 1);
+            assert.strictEqual(next.callCount, i + 1);
+        }
+    });
 });

@@ -59,13 +59,8 @@ describe('type: array', function () {
             validator(schema).validate(Math.PI);
         });
 
-        assert.throws(function () {
-            validator('array').validate(123);
-        });
-
         assert.doesNotThrow(function () {
             validator(schema).validate([]);
-            validator('array').validate([]);
         });
     });
 

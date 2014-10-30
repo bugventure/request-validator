@@ -61,14 +61,9 @@ describe('type: boolean', function () {
             validator(schema).validate(Math.PI);
         });
 
-        assert.throws(function () {
-            validator('boolean').validate(Math.PI);
-        });
-
         assert.doesNotThrow(function () {
             validator(schema).validate(true);
             validator(schema).validate(false);
-            validator('boolean').validate(false);
         });
     });
 });

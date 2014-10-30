@@ -4,7 +4,7 @@
 var assert = require('assert'),
     validator = require('../index.js');
 
-describe.skip('$ref', function () {
+describe('$ref', function () {
     it('throws if string is not in correct format', function () {
         assert.throws(function () {
             validator({ $ref: '' });
@@ -29,9 +29,6 @@ describe.skip('$ref', function () {
         });
 
         assert.doesNotThrow(function () {
-            // TODO: PROBLEM: recursive validation of metaschema
-            // where the object or array validator needs to expand
-            // references, but doesn't have access to the root schema.
             validator({
                 a: {
                     b: {
@@ -42,7 +39,9 @@ describe.skip('$ref', function () {
                 },
                 $ref: '#/a/b/c'
             });
+        });
 
+        assert.doesNotThrow(function () {
             validator({
                 arr: [
                     { value: { type: 'string'} },

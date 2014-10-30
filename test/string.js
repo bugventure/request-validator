@@ -65,13 +65,8 @@ describe('type: string', function () {
             validator(schema).validate({});
         });
 
-        assert.throws(function () {
-            validator('string').validate(123);
-        });
-
         assert.doesNotThrow(function () {
             validator(schema).validate('abc');
-            validator('string').validate('abc');
         });
     });
 

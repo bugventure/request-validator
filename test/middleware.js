@@ -117,6 +117,38 @@ describe('middleware', function () {
 
         assert(stub1.calledBefore(next));
     });
+
+    it('validates according to schema', function () {
+        var schema = {
+                type: 'object',
+                properties: {
+                    a: {
+                        type: 'string',
+                        source: 'body'
+                    }
+                },
+                required: ['a']
+            },
+            spy = sinon.spy(),
+            middleware = validator(schema, spy),
+            req = { body: { a: 123 }},
+            res = {},
+            next = noop;
+
+        middleware(req, res, next);
+
+        assert(spy.calledOnce);
+        assert.strictEqual(req.validator.valid, false);
+        assert.deepEqual(req.validator.params, req.body);
+
+        req.body.a = 'abc';
+
+        middleware(req, res, next);
+
+        assert(spy.calledTwice);
+        assert.strictEqual(req.validator.valid, true);
+        assert.deepEqual(req.validator.params, req.body);
+    });
 });
 
 describe('req.validator', function () {

@@ -15,14 +15,6 @@ describe('error', function () {
         });
     });
 
-    it.skip('throws if no type validator is found', function () {
-        var schema = { type: 'unknown type' };
-
-        assert.throws(function () {
-            validator(schema);
-        });
-    });
-
     it('throws when child invalid', function () {
         var schema = {
             type: 'object',
@@ -38,23 +30,15 @@ describe('error', function () {
 
     it('does not throw when schema is valid', function () {
         assert.doesNotThrow(function () {
-            validator('string');
+            validator({ type: 'string' });
             validator({ type: 'number' });
-            validator({ type: 'array', items: 'integer' });
+            validator({ type: 'array', items: { type: 'integer' } });
             validator({ type: ['array', 'null'], items: { type: 'string', minLength: 2, maxLength: 2 } });
-            validator({ type: 'object', properties: { a: { type: 'string' }, b: 'boolean' } });
+            validator({ type: 'object', properties: { a: { type: 'string' }, b: { type: 'boolean' } } });
         });
     });
 
-    it.skip('throws when schema is invalid', function () {
-        assert.throws(function () {
-            validator('nonExistingType');
-        });
-
-        assert.throws(function () {
-            validator({ type: 'nonExistingType' });
-        });
-
+    it('throws when schema is invalid', function () {
         assert.throws(function () {
             validator({ type: 'object', properties: ['string', 'number'] });
         });

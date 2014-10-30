@@ -40,13 +40,8 @@ describe('type: null', function () {
             validator(schema).validate(Math.PI);
         });
 
-        assert.throws(function () {
-            validator('null').validate(Math.PI);
-        });
-
         assert.doesNotThrow(function () {
             validator(schema).validate(null);
-            validator('null').validate(null);
         });
     });
 });
