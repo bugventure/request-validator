@@ -35,6 +35,8 @@ Flexible, schema-based request paramater validator middleware for express and co
 - [Running Tests](#running-tests)
 - [Issues](#issues)
 - [Futures](#futures)
+    - [Default Values (In The Works)](#default-values-in-the-works)
+    - [Better Error Reporting (In The Works)](#better-error-reporting-in-the-works)
     - [In-Schema Validator Functions](#in-schema-validator-functions)
     - [Sanitizers](#sanitizers)
     - [Browser Support](#browser-support)
@@ -187,7 +189,7 @@ app.post('/comments', validator(schema, function (req, res, next) {
 
 ## JSON Schema
 
-The validator module fully implements draft 4 of the [JSON Schema specification](http://json-schema.org/documentation.html). Check out this [excellent guide to JSON Schema](http://spacetelescope.github.io/understanding-json-schema/UnderstandingJSONSchema.pdf) by Michael Droettboom, et al.
+The validator fully implements draft 4 of the [JSON Schema specification](http://json-schema.org/documentation.html). Check out this [excellent guide to JSON Schema](http://spacetelescope.github.io/understanding-json-schema/UnderstandingJSONSchema.pdf) by Michael Droettboom, et al.
 
 A schema is a JavaScript object that specifies the type and structure of another JavaScript object or value. Here are some valid schema objects:
 
@@ -369,8 +371,8 @@ Alternatively, you can specify multiple item schemas for positional matching.
 {
     oneOf: [                    // match exacly one of those schemas,
         {                       // i.e. a number that is less than 3
-            type: 'number',     // or greater than 5, but not a number
-            maximum: 5          // between 3 and 5
+            type: 'number',     // or greater than 5, 
+            maximum: 52         // but not between 3 and 5
         },
         { 
             type: 'number', 
@@ -392,6 +394,26 @@ Alternatively, you can specify multiple item schemas for positional matching.
 
 ## Schema Reference Using `$ref`
 
+You can refer to types defined in other parts of the schema using the `$ref` property. This approach is often combined with the `definitions` section in the schema that contains reusable schema definitions.
+
+```javascript
+{
+    type: 'array',                              // match an array containing
+    items: {                                    // items that are positive
+        $ref: '#/definitions/positiveInteger'   // integers
+    },
+    definitions: {
+        positiveInteger: {
+            type: 'integer',
+            minimum: 0,
+            exclusiveMinimum: true
+        }
+    }
+}
+```
+
+Using references, it becomes possible to validate complex object graphs using recursive schema definitions. For example, the validator itself validates the user schema against the [JSON meta-schema][metaschema].
+
 ## Extensibility
 
 ## Integration with Other Validators
@@ -403,6 +425,43 @@ Alternatively, you can specify multiple item schemas for positional matching.
 Please submit issues to the [request-validator issue tracker in GitHub](https://github.com/bugventure/request-validator/issues).
 
 ## Futures
+
+### Default Values (In The Works)
+
+Ability to set default values to the validated object when validating request parameters:
+
+```javascript
+var schema = {
+    type: 'object',
+    required: ['username', 'password'],
+    properties: {
+        username: { 
+            type: 'string',
+            source: 'body'
+        },
+        password: { 
+            type: 'string',
+            source: 'body'
+        },
+        rememberMe: { 
+            type: 'boolean', 
+            default: false,
+            source: 'body'
+        }
+    }
+}
+
+app.post('/signin', validator(schema, function (req, res, next) {
+    var params = req.validator.params;
+    console.log(params);
+    // params object contains `rememberMe` with 
+    // default value of `false` even if omitted
+}));
+```
+
+### Better Error Reporting (In The Works)
+
+Ability to better understand where in the object graph did the validation fail.
 
 ### In-Schema Validator Functions
 
@@ -485,3 +544,4 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 [downloads-img]: http://img.shields.io/npm/dm/request-validator.svg
 [coveralls-img]: https://img.shields.io/coveralls/bugventure/request-validator.svg
 [coveralls-url]: https://coveralls.io/r/bugventure/request-validator
+[metaschema]: http://json-schema.org/schema
