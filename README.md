@@ -7,10 +7,13 @@ request-validator
 
 Flexible, schema-based request paramater validator middleware for express and connect. Fully implements the core and validation specs of [JSON Schema draft 4](http://json-schema.org/documentation.html).
 
+### Table of Contents
+
 <!-- MarkdownTOC -->
 
 - [Getting Started](#getting-started)
 - [Express Middleware](#express-middleware)
+    - [Parameter Source](#parameter-source)
 - [JSON Schema](#json-schema)
 - [Type Validation](#type-validation)
     - [string](#string)
@@ -21,7 +24,6 @@ Flexible, schema-based request paramater validator middleware for express and co
     - [array](#array)
     - [null](#null)
     - [any](#any)
-- [External Schema Reference](#external-schema-reference)
 - [Extensibility](#extensibility)
 - [Running Tests](#running-tests)
 - [Issues](#issues)
@@ -33,7 +35,7 @@ Flexible, schema-based request paramater validator middleware for express and co
 
 <!-- /MarkdownTOC -->
 
-### Getting Started
+## Getting Started
 
 ```bash
 $ npm install request-validator --save
@@ -43,6 +45,7 @@ $ npm install request-validator --save
 var validator = require('request-validator');
 
 try {
+    // expect to throw
     validator({ type: 'string' }).validate('some value');
 }
 catch (e) {
@@ -50,38 +53,105 @@ catch (e) {
 }
 ```
 
+Validation works by passing a JSON schema to build a validator object and then calling its `validate` method with a value. Both the validator builder function and the resulting object's `validate` methods may throw.
 
+The validator builder throws an error if the provided schema object does not conform to the JSON Schema draft 4 spec:
 
-### Express Middleware
+```javascript
+try {
+    // cannot use this string as a schema
+    validator('not a valid schema');
 
-### JSON Schema
+    // object properties are not properly defined
+    validator({ type: 'object', properties: ['string', 'number'] });
+}
+catch (e) {
+    console.log(e);
+}
+```
+
+## Express Middleware
+
+The validator builder function is dual-purposed and can be used as an express middleware:
+
+```javascript
+var express = require('express'),
+    validator = require('express-validator'),
+    app = express.app(),
+    schema = {
+        type: 'object',
+        properties: {
+            author: {
+                type: 'string',
+                source: 'body'
+            },
+            commentText: {
+                type: 'string',
+                source: 'body'
+            }
+        }
+    };
+
+app.post('/comments', validator(schema, function (req, res, next) {
+    // req.body.author and req.body.commentText are validated
+}));
+```
+
+In this 'middleware mode', the validator will not throw an error and instead create a `req.validator` object containing the validation result.
+
+```javascript
+app.post('/comments', validator(schema, function (req, res, next) {
+    if (!req.validator.valid) {
+        next(req.validator.error);
+        return;
+    }
+
+    var params = req.validator.params;
+    console.log(params);    // { author: 'me', commentText: 'Hello!' }
+}));
+```
+
+Additionally, the `req.validator` object is actually a copy of the validator builder function and can be used to further validate data in the context of a request middleware:
+
+```javascript
+app.post('/comments', validator(schema, function (req, res, next) {
+    try {
+        req.validator({ type: 'boolean' }).validate(req.body.subscribe);
+    }
+    catch (e) {
+        next(e);
+    }
+}));
+```
+
+### Parameter Source
+
+## JSON Schema
 
 The validator module fully implements draft 4 of the [JSON Schema specification](http://json-schema.org/documentation.html). Check out this [excellent guide to JSON Schema](http://spacetelescope.github.io/understanding-json-schema/UnderstandingJSONSchema.pdf) by Michael Droettboom, et al.
 
-### Type Validation
+## Type Validation
 
-#### string
-#### number
-#### integer
-#### boolean
-#### object
-#### array
-#### null
-#### any
+### string
+### number
+### integer
+### boolean
+### object
+### array
+### null
+### any
 
-### External Schema Reference
+## Extensibility
 
-### Extensibility
+## Running Tests
 
-### Running Tests
-
-### Issues
+## Issues
 
 Please submit issues to the [request-validator issue tracker in GitHub](https://github.com/bugventure/request-validator/issues).
 
-### Futures
+## Futures
 
-#### In-Schema Validator Functions
+### In-Schema Validator Functions
 
 Ability to specify a custom validator function for particular objects directly in the shema:
 
@@ -100,7 +170,7 @@ var schema = {
 validator(schema).validate('123-45-6789');
 ```
 
-#### Sanitizers
+### Sanitizers
 
 Extension points for input sanitization. Examples: converting from strings to numbers, trimming, whitelisting, etc.
 
@@ -124,7 +194,7 @@ var schema = {
 }
 ```
 
-#### Browser Support
+### Browser Support
 
 Ability to use validator in the browser.
 
@@ -143,7 +213,7 @@ Ability to use validator in the browser.
 </html>
 ```
 
-### License
+## License
 
 The MIT License (MIT)
 
