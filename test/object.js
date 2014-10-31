@@ -250,6 +250,113 @@ describe('type: object', function () {
         });
     });
 
+    it('dependencies: schema', function () {
+        var schema = {
+            type: 'object',
+            properties: {
+                a: { type: 'string' },
+                b: { type: 'number' }
+            },
+            dependencies: {
+                a: {
+                    type: 'object',
+                    required: ['c'],
+                    properties: {
+                        c: { type: 'boolean' }
+                    }
+                },
+                b: {
+                    type: 'object',
+                    required: ['f'],
+                    properties: {
+                        f: { type: 'null' }
+                    }
+                },
+                g: {
+                    type: 'object',
+                    required: ['b'],
+                    properties: {
+                        b: {
+                            type: 'integer'
+                        }
+                    }
+                }
+            }
+        };
+
+        assert.throws(function () {
+            validator(schema).validate({ a: 'abc' });
+        });
+
+        assert.throws(function () {
+            validator(schema).validate({ a: 'abc', c: 123 });
+        });
+
+        assert.throws(function () {
+            validator(schema).validate({ b: Math.PI });
+        });
+
+        assert.throws(function () {
+            validator(schema).validate({ b: Math.PI, f: false });
+        });
+
+        assert.throws(function () {
+            validator(schema).validate({ b: Math.PI, g: null });
+        });
+
+        assert.doesNotThrow(function () {
+            validator(schema).validate({});
+
+            validator(schema).validate({
+                a: 'abc',
+                c: false
+            });
+
+            validator(schema).validate({
+                b: Math.PI,
+                f: null
+            });
+
+            validator(schema).validate({
+                b: 123,
+                g: 'any value',
+                f: null
+            });
+        });
+    });
+
+    it('dependencies: property', function () {
+        var schema = {
+            type: 'object',
+            properties: {
+                a: { type: 'string' },
+                b: { type: 'number' },
+                c: { type: 'boolean' }
+            },
+            dependencies: {
+                a: ['b', 'c']
+            }
+        };
+
+        assert.throws(function () {
+            validator(schema).validate({ a: 'abc' });
+        });
+
+        assert.throws(function () {
+            validator(schema).validate({ a: 'abc', b: 123 });
+        });
+
+        assert.doesNotThrow(function () {
+            validator(schema).validate({});
+
+            validator(schema).validate({
+                a: 'abc',
+                b: 123,
+                c: false
+            });
+        });
+    });
+
     it('nested graph', function () {
         var schema = {
             type: ['object', 'null'],
@@ -319,8 +426,3 @@ describe('type: object', function () {
         });
     });
 });
-
-// TODO: dependencies for object (property and schema)
-// TODO: Common keywords: allOf, anyOf, oneOf, not, definitions
-// TODO: if definitions are implemented, they must be loaded when validating
-// TODO: id definitions are implemented, add support for $ref

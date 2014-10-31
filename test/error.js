@@ -31,10 +31,53 @@ describe('error', function () {
     it('does not throw when schema is valid', function () {
         assert.doesNotThrow(function () {
             validator({ type: 'string' });
+
             validator({ type: 'number' });
-            validator({ type: 'array', items: { type: 'integer' } });
-            validator({ type: ['array', 'null'], items: { type: 'string', minLength: 2, maxLength: 2 } });
-            validator({ type: 'object', properties: { a: { type: 'string' }, b: { type: 'boolean' } } });
+
+            validator({
+                type: 'array',
+                items: {
+                    type: 'integer'
+                }
+            });
+
+            validator({
+                type: ['array', 'null'],
+                items: {
+                    type: 'string',
+                    minLength: 2,
+                    maxLength: 2
+                }
+            });
+
+            validator({
+                type: 'object',
+                properties: {
+                    a: {
+                        type: 'string'
+                    },
+                    b: {
+                        type:
+                        'boolean'
+                    }
+                }
+            });
+
+            validator({ type: 'object', dependencies: { } });
+
+            validator({
+                type: 'object',
+                dependencies: {
+                    a: {}
+                }
+            });
+
+            validator({
+                type: 'object',
+                dependencies: {
+                    a: ['b']
+                }
+            });
         });
     });
 
@@ -65,6 +108,40 @@ describe('error', function () {
                         type: 'object',
                         properties: [{ type: 'string '}]
                     }
+                }
+            });
+        });
+    });
+
+    it('throws when dependencies invalid', function () {
+        assert.throws(function () {
+            validator({
+                type: 'object',
+                dependencies: null
+            });
+        });
+
+        assert.throws(function () {
+            validator({
+                type: 'object',
+                dependencies: []
+            });
+        });
+
+        assert.throws(function () {
+            validator({
+                type: 'object',
+                dependencies: {
+                    a: false
+                }
+            });
+        });
+
+        assert.throws(function () {
+            validator({
+                type: 'object',
+                dependencies: {
+                    a: []
                 }
             });
         });
