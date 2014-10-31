@@ -103,7 +103,7 @@ describe('type: object', function () {
         });
     });
 
-    it('required', function () {
+    it('required properties', function () {
         var schema = {
             type: 'object',
             properties: {
@@ -128,6 +128,10 @@ describe('type: object', function () {
 
         assert.throws(function () {
             validator(schema).validate({ b: 123, c: true });
+        });
+
+        assert.throws(function () {
+            validator(schema).validate({ a: 'abc', b: undefined });
         });
 
         assert.doesNotThrow(function () {
