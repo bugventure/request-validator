@@ -290,6 +290,38 @@ Alternatively `additionalProperties` can be an object defining a schema, where e
 }
 ```
 
+You can additionally specify `dependencies` in an object schema. There are two types of dependencies:
+
+1. property dependency
+
+    ```javascript
+    {
+        type: 'object',             // if `price` is defined, then
+        dependencies: {             // these two must also be defined
+            price: ['unitsInStock', 'quantityPerUnit']
+        }
+    }
+    ```
+
+2. schema dependency
+    
+    ``` javascript
+    {
+        type: 'object',
+        dependencies: {                     // if `price` is defined,
+            price: {                        // then the object must also
+                type: 'object',             // match the specified schema
+                properties: {
+                    unitsInStock: {
+                        type: 'integer',
+                        minimum: 0
+                    }
+                }
+            }
+        }
+    }
+    ```
+
 ### `array`
 
 ```javascript
