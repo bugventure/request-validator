@@ -194,7 +194,7 @@ describe('type: array', function () {
         });
     });
 
-    it('additionalItems', function () {
+    it('additionalItems: boolean', function () {
         var schema = {
             type: 'array',
             additionalItems: false
@@ -229,6 +229,53 @@ describe('type: array', function () {
 
         assert.doesNotThrow(function () {
             validator(schema).validate(['a', 1]);
+        });
+    });
+
+    it('additionalItems: object', function () {
+        // when `items` is an object schema, `additionalItems`
+        // is ignored and must not validate against
+        var schema = {
+            type: 'array',
+            items: {
+                type: 'string'
+            },
+            additionalItems: {
+                type: 'number'
+            }
+        };
+
+        assert.throws(function () {
+            validator(schema).validate(['abc', 'def', 123]);
+        });
+
+        assert.doesNotThrow(function () {
+            // same as above description - only strings are valid
+            validator(schema).validate(['abc', 'def']);
+        });
+
+        // when `items` is an array, any other positional
+        // data item must validate against `additionalItems`
+        schema.items = [
+            { type: 'string' },
+            { type: 'boolean' }
+        ];
+
+        assert.throws(function () {
+            validator(schema).validate(['abc', false, 'def']);
+        });
+
+        assert.doesNotThrow(function () {
+            validator(schema).validate(['abc', false]);
+            validator(schema).validate(['abc', false, 123]);
+            validator(schema).validate(['abc', false, 123, Math.PI]);
+        });
+
+        // when `additionalItems` is an empty object, anything is valid
+        schema.additionalItems = {};
+
+        assert.doesNotThrow(function () {
+            validator(schema).validate(['abc', false, 'def', 123, {}, null]);
         });
     });
 
