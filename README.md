@@ -34,6 +34,8 @@ Flexible, schema-based request paramater validator middleware for express and co
 - [Integration with Other Validators](#integration-with-other-validators)
 - [Running Tests](#running-tests)
 - [Issues](#issues)
+- [Changelog](#changelog)
+    - [v0.2.1](#v021)
 - [Futures](#futures)
     - [Default Values (In The Works)](#default-values-in-the-works)
     - [Better Error Reporting (In The Works)](#better-error-reporting-in-the-works)
@@ -588,6 +590,13 @@ Source code coverage is provided by [istanbul][istanbul] and visible on [coveral
 ## Issues
 
 Please submit issues to the [request-validator issue tracker in GitHub](https://github.com/bugventure/request-validator/issues).
+
+## Changelog
+
+### v0.2.1
+* Add dependency support for object validation (#1)
+* Fix required property validation accepts `undefined` values (#5)
+* Fix array items are not validated against `additionalItems` (#6)
 
 ## Futures
 
