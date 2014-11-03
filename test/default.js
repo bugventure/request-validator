@@ -2,6 +2,7 @@
 'use strict';
 
 var assert = require('assert'),
+    sinon = require('sinon'),
     validator = require('../index.js');
 
 describe('default', function () {
@@ -225,5 +226,35 @@ describe('default', function () {
 
         assert.deepEqual(validator(schema).default([{}, {}]),
             [{ a: 'abc' }, { a: 'abc' }]);
+    });
+
+    it('middleware', function () {
+        var schema = {
+                type: 'object',
+                properties: {
+                    a: {
+                        type: 'string',
+                        source: 'body',
+                        default: 'abc'
+                    },
+                    b: {
+                        type: 'number',
+                        source: 'params',
+                        default: 17
+                    }
+                },
+                required: ['a', 'b']
+            },
+            spy = sinon.spy(),
+            middleware = validator(schema, spy),
+            req =  { body: {}, params: {} },
+            res = {},
+            next = function () { };
+
+        middleware(req, res, next);
+
+        assert(spy.calledOnce);
+        assert(req.validator.valid);
+        assert.deepEqual(req.validator.params, { a: 'abc', b: 17 });
     });
 });
