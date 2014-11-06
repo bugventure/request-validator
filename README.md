@@ -87,7 +87,7 @@ The validator builder function is dual-purposed and can be used as an express mi
 
 ```javascript
 var express = require('express'),
-    validator = require('express-validator'),
+    validator = require('request-validator'),
     app = express.app(),
     schema = {
         type: 'object',
