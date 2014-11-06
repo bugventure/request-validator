@@ -253,8 +253,20 @@ describe('default', function () {
 
         middleware(req, res, next);
 
+        console.log(req.validator.error);
+
         assert(spy.calledOnce);
-        assert(req.validator.valid);
+        assert(!req.validator.valid);
         assert.deepEqual(req.validator.params, { a: 'abc', b: 17 });
+
+        req.body.a = 'def';
+        req.params.b = 0;
+
+        middleware(req, res, next);
+
+        console.log(req.validator.error);
+
+        assert(spy.calledTwice);
+        assert(req.validator.valid);
     });
 });
