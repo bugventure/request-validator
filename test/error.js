@@ -441,6 +441,7 @@ describe('error', function () {
             };
 
             try {
+                // no inner error when value is missing
                 validator(schema).validate();
                 assert.fail();
             }
@@ -448,9 +449,12 @@ describe('error', function () {
                 assert.strictEqual(e.key, '');
                 assert.strictEqual(e.missing, true);
                 assert.strictEqual(e.required, true);
+
+                assert.strictEqual(e.errors, undefined);
             }
 
             try {
+                // no inner error when violating type
                 validator(schema).validate(null);
                 assert.fail();
             }
@@ -458,95 +462,77 @@ describe('error', function () {
                 assert.strictEqual(e.key, '');
                 assert.strictEqual(e.missing, false);
                 assert.strictEqual(e.required, true);
+
+                assert.strictEqual(e.errors, undefined);
             }
 
-            // try {
-            //     validator(schema).validate([]);
-            //     assert.fail();
-            // }
-            // catch (e) {
-            //     assert.strictEqual(e.key, '');
-            //     assert.strictEqual(e.missing, false);
-            //     assert.strictEqual(e.required, true);
+            try {
+                validator(schema).validate([null]);
+                assert.fail();
+            }
+            catch (e) {
+                assert.strictEqual(e.key, '');
+                assert.strictEqual(e.missing, false);
+                assert.strictEqual(e.required, true);
 
-            //     assert(e.errors instanceof Array);
-            //     assert.strictEqual(e.errors.length, 0);
-            // }
+                assert(e.errors instanceof Array);
+                assert.strictEqual(e.errors.length, 1);
 
-            // try {
-            //     validator(schema).validate([null]);
-            //     assert.fail();
-            // }
-            // catch (e) {
-            //     assert.strictEqual(e.key, '');
-            //     assert.strictEqual(e.missing, false);
-            //     assert.strictEqual(e.required, true);
+                assert.strictEqual(e.errors[0].key, '0');
+                assert.strictEqual(e.errors[0].missing, false);
+                assert.strictEqual(e.errors[0].required, false);
+            }
 
-            //     assert(e.errors instanceof Array);
-            //     assert.strictEqual(e.errors.length, 1);
-
-            //     assert.strictEqual(e.errors[0].key, '0');
-            //     assert.strictEqual(e.errors[0].missing, false);
-            //     assert.strictEqual(e.errors[0].required, false);
-            // }
-
-            schema.minLength = 2;
+            schema.minItems = 2;
             schema.additionalItems = false;
 
-            // try {
-            //     validator(schema).validate([]);
-            //     assert.fail();
-            // }
-            // catch (e) {
-            //     assert.strictEqual(e.key, '');
-            //     assert.strictEqual(e.missing, false);
-            //     assert.strictEqual(e.required, true);
+            try {
+                // no inner errors when viloating minItems only
+                validator(schema).validate([]);
+                assert.fail();
+            }
+            catch (e) {
+                assert.strictEqual(e.key, '');
+                assert.strictEqual(e.missing, false);
+                assert.strictEqual(e.required, true);
 
-            //     assert(e.errors instanceof Array);
-            //     assert.strictEqual(e.errors.length, 2);
+                assert.strictEqual(e.errors, undefined);
+            }
 
-            //     assert.strictEqual(e.errors[0].key, '0');
-            //     assert.strictEqual(e.errors[0].missing, true);
-            //     assert.strictEqual(e.errors[0].required, true);
+            try {
+                // inner error when violating item schema and all
+                // inner items are required
+                validator(schema).validate([null, null]);
+            }
+            catch (e) {
+                assert.strictEqual(e.key, '');
+                assert.strictEqual(e.missing, false);
+                assert.strictEqual(e.required, true);
 
-            //     assert.strictEqual(e.errors[1].key, '1');
-            //     assert.strictEqual(e.errors[1].missing, true);
-            //     assert.strictEqual(e.errors[1].required, true);
-            // }
+                assert(e.errors instanceof Array);
+                assert.strictEqual(e.errors.length, 2);
 
-            // try {
-            //     validator(schema).validate([null]);
-            //     assert.fail();
-            // }
-            // catch (e) {
-            //     assert.strictEqual(e.key, '');
-            //     assert.strictEqual(e.missing, false);
-            //     assert.strictEqual(e.required, true);
+                assert.strictEqual(e.errors[0].key, '0');
+                assert.strictEqual(e.errors[0].missing, false);
+                assert.strictEqual(e.errors[0].required, true);
 
-            //     assert(e.errors instanceof Array);
-            //     assert.strictEqual(e.errors.length, 2);
+                assert.strictEqual(e.errors[1].key, '1');
+                assert.strictEqual(e.errors[1].missing, false);
+                assert.strictEqual(e.errors[1].required, true);
+            }
 
-            //     assert.strictEqual(e.errors[0].key, '0');
-            //     assert.strictEqual(e.errors[0].missing, false);
-            //     assert.strictEqual(e.errors[0].required, true);
+            try {
+                // no inner errors when violating additionalItems: false
+                validator(schema).validate(['abc', 123, 'another value']);
+                assert.fail();
+            }
+            catch (e) {
+                assert.strictEqual(e.key, '');
+                assert.strictEqual(e.missing, false);
+                assert.strictEqual(e.required, true);
 
-            //     assert.strictEqual(e.errors[1].key, '1');
-            //     assert.strictEqual(e.errors[1].missing, true);
-            //     assert.strictEqual(e.errors[1].required, true);
-            // }
-
-            // try {
-            //     validator(schema).validate(['abc', 123, 'another value']);
-            //     assert.fail();
-            // }
-            // catch (e) {
-            //     assert.strictEqual(e.key, '');
-            //     assert.strictEqual(e.missing, false);
-            //     assert.strictEqual(e.required, true);
-
-            //     assert(e.errors instanceof Array);
-            //     assert.strictEqual(e.errors.length, 0);
-            // }
+                assert.strictEqual(e.errors, undefined);
+            }
         });
     });
 });

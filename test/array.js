@@ -173,14 +173,6 @@ describe('type: array', function () {
         };
 
         assert.throws(function () {
-            validator(schema).validate([]);
-        });
-
-        assert.throws(function () {
-            validator(schema).validate(['a']);
-        });
-
-        assert.throws(function () {
             validator(schema).validate([1]);
         });
 
@@ -189,6 +181,8 @@ describe('type: array', function () {
         });
 
         assert.doesNotThrow(function () {
+            validator(schema).validate([]);
+            validator(schema).validate(['a']);
             validator(schema).validate(['a', 1]);
             validator(schema).validate(['a', 1, null, 'b', 2]);
         });
@@ -228,6 +222,8 @@ describe('type: array', function () {
         });
 
         assert.doesNotThrow(function () {
+            validator(schema).validate([]);
+            validator(schema).validate(['a']);
             validator(schema).validate(['a', 1]);
         });
     });
