@@ -306,6 +306,41 @@ describe('error', function () {
                 assert.strictEqual(e.errors[1].required, true);
             }
 
+            // put these two constraints into the game for test coverage
+            schema.patternProperties = {
+                '^a': { type: 'string' }
+            };
+
+            schema.dependencies = {
+                a: ['b']
+            };
+
+            try {
+                validator(schema).validate({ a: undefined });
+                assert.fail();
+            }
+            catch (e) {
+                assert.strictEqual(e.key, '');
+                assert.strictEqual(e.missing, false);
+                assert.strictEqual(e.required, true);
+
+                assert(e.errors instanceof Array);
+                assert.strictEqual(e.errors.length, 2);
+
+                assert(e.errors[0] instanceof Error);
+                assert.strictEqual(e.errors[0].key, 'a');
+                assert.strictEqual(e.errors[0].missing, true);
+                assert.strictEqual(e.errors[0].required, true);
+
+                assert(e.errors[1] instanceof Error);
+                assert.strictEqual(e.errors[1].key, 'b');
+                assert.strictEqual(e.errors[1].missing, true);
+                assert.strictEqual(e.errors[1].required, true);
+            }
+
+            delete schema.patternProperties;
+            delete schema.dependencies;
+
             try {
                 validator(schema).validate({ a: 'abc', c: null });
                 assert.fail();
@@ -530,6 +565,52 @@ describe('error', function () {
                 assert.strictEqual(e.key, '');
                 assert.strictEqual(e.missing, false);
                 assert.strictEqual(e.required, true);
+
+                assert.strictEqual(e.errors, undefined);
+            }
+        });
+
+        it('with custom validator function', function () {
+            var validator2 = validator.create(),
+                myFunc = function (schema, value) { // jshint ignore: line
+                    throw new Error();
+                };
+
+            validator2.use('string', myFunc);
+
+            try {
+                validator2({ type: 'string' }).validate('abc');
+                assert.fail();
+            }
+            catch (e) {
+                assert.strictEqual(e.key, '');
+                assert.strictEqual(e.missing, false);
+                assert.strictEqual(e.required, true);
+
+                assert.strictEqual(e.errors, undefined);
+            }
+        });
+
+        it('with custom validator function that sets propeties to error', function () {
+            var validator2 = validator.create(),
+                myFunc = function (schema, value) { // jshint ignore: line
+                    var err = new Error('my custom message');
+                    err.key = 'my custom key';
+                    err.required = false;
+
+                    throw err;
+                };
+
+            validator2.use('string', myFunc);
+
+            try {
+                validator2({ type: 'string' }).validate('abc');
+                assert.fail();
+            }
+            catch (e) {
+                assert.strictEqual(e.key, 'my custom key');
+                assert.strictEqual(e.missing, false);
+                assert.strictEqual(e.required, false);
 
                 assert.strictEqual(e.errors, undefined);
             }
