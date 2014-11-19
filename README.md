@@ -30,6 +30,7 @@ Flexible, schema-based request paramater validator middleware for express and co
     - [`oneOf`](#oneof)
     - [`not`](#not)
 - [Schema Reference Using `$ref`](#schema-reference-using-ref)
+- [Default Values](#default-values)
 - [Extensibility](#extensibility)
 - [Integration with Other Validators](#integration-with-other-validators)
 - [Error Reporting](#error-reporting)
@@ -39,7 +40,6 @@ Flexible, schema-based request paramater validator middleware for express and co
 - [Changelog](#changelog)
     - [v0.2.1](#v021)
 - [Futures](#futures)
-    - [Default Values (In The Works)](#default-values-in-the-works)
     - [In-Schema Validator Functions](#in-schema-validator-functions)
     - [Sanitizers](#sanitizers)
     - [Browser Support](#browser-support)
@@ -449,6 +449,92 @@ You can refer to types defined in other parts of the schema using the `$ref` pro
 
 Using references, it becomes possible to validate complex object graphs using recursive schema definitions. For example, the validator itself validates the user schema against the [JSON meta-schema][metaschema].
 
+## Default Values
+
+In addition to validating objects, `request-validator` supports default values in the JSON schema. You can use `validator(schema).default()` to retrieve default values when the actual value is not defined.
+
+```javascript
+var schema = {
+    type: 'string',
+    default: 'this is a default string'
+}
+
+var myString = validator(schema).default();
+console.log(myString);  // 'this is a default string'
+```
+
+In object graphs and arrays, default values are filled in their respective places when there are missing keys and the JSON schema specifies a default value for these keys.
+
+```javascript
+var schema = {
+    type: 'object',
+    default: {},
+    properties: {
+        foo: {
+            type: 'string',
+            default: 'bar'
+        }
+    }
+}
+
+var myObject = validator(schema).default();
+console.log(myObject);  // '{ "foo": "bar" }'
+```
+
+This approach helps build complete object graphs even when only some of the values are provided.
+
+```javascript
+var schema = {
+    type: 'object',
+    properties: {
+        username: { type: 'string' },
+        password: { type: 'string' },
+        rememberMe: { type: 'boolean', default: true }
+    }
+}
+
+var myLoginInfo = { username: 'johndoe', password: 'P@ssw0rd' };
+console.log(validator(schema).default(myLoginInfo));
+
+// third property `rememberMe` defaults to `true`
+// { username: 'johndoe', password: 'P@ssw0rd', rememberMe: true }
+```
+
+**NOTE**: `validator(schema).default()` does not trigger validation and will not throw validation errors. The validator will try to resolve the default values based on the current state of the object graph, where possible. 
+
+When using `request-validator` as express middleware, default values are automatically collected from the request object. This helps build a data model with robust input validation and default values.
+
+```javascript
+var schema = {
+    type: 'object',
+    required: ['username', 'password'], // `rememberMe` is not required
+    properties: {
+        username: { 
+            type: 'string',
+            source: 'body'
+        },
+        password: { 
+            type: 'string',
+            source: 'body'
+        },
+        rememberMe: { 
+            type: 'boolean', 
+            default: true,              // if omitted, defaults to `true`
+            source: 'body'
+        }
+    }
+}
+
+app.post('/signin', validator(schema, function (req, res, next) {
+    var params = req.validator.params;
+    console.log(params);
+    // params object contains `rememberMe` with 
+    // default value of `true` even if omitted
+}));
+```
+
+**NOTE**: Default values do not go through the validation pipeline. The process of collecting default values is kept completely separate from the actual validation, so that only user-provided data is validated.
+
 ## Extensibility
 
 You can extend `request-validator` with custom validation functions that match a particular type. A custom validator function must throw an exception if validation fails. It accepts two parameters - the schema object and the value to validate.
@@ -735,39 +821,6 @@ Please submit issues to the [request-validator issue tracker in GitHub](https://
 * Fix array items are not validated against `additionalItems` (#6)
 
 ## Futures
-
-### Default Values (In The Works)
-
-Ability to set default values to the validated object when validating request parameters:
-
-```javascript
-var schema = {
-    type: 'object',
-    required: ['username', 'password'],
-    properties: {
-        username: { 
-            type: 'string',
-            source: 'body'
-        },
-        password: { 
-            type: 'string',
-            source: 'body'
-        },
-        rememberMe: { 
-            type: 'boolean', 
-            default: false,
-            source: 'body'
-        }
-    }
-}
-
-app.post('/signin', validator(schema, function (req, res, next) {
-    var params = req.validator.params;
-    console.log(params);
-    // params object contains `rememberMe` with 
-    // default value of `false` even if omitted
-}));
-```
 
 ### In-Schema Validator Functions
 
