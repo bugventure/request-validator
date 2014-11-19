@@ -32,13 +32,14 @@ Flexible, schema-based request paramater validator middleware for express and co
 - [Schema Reference Using `$ref`](#schema-reference-using-ref)
 - [Extensibility](#extensibility)
 - [Integration with Other Validators](#integration-with-other-validators)
+- [Error Reporting](#error-reporting)
+- [Custom Error Messages](#custom-error-messages)
 - [Running Tests](#running-tests)
 - [Issues](#issues)
 - [Changelog](#changelog)
     - [v0.2.1](#v021)
 - [Futures](#futures)
     - [Default Values (In The Works)](#default-values-in-the-works)
-    - [Better Error Reporting (In The Works)](#better-error-reporting-in-the-works)
     - [In-Schema Validator Functions](#in-schema-validator-functions)
     - [Sanitizers](#sanitizers)
     - [Browser Support](#browser-support)
@@ -577,6 +578,141 @@ app.post('/', requestValidator(schema, function (req, res, next) {
 }));
 ```
 
+## Error Reporting
+
+The validator throws regular error objects when validation fails. These error objects are decorated with additional properties to help identify the exact place in the object graph, where validation failed. This is especially useful when validating large objects with many properties or a deep object graph.
+
+```javascript
+var schema = {
+    type: 'object',
+    properties: {
+        firstName: { type: 'string' },
+        lastName: { type: 'string' },
+        address: {
+            type: 'object',
+            properties: {
+                city: { type: 'string' },
+                postal: { type: 'integer' },
+                state: { type: 'string' },
+                country: { type: 'string' }
+            }
+        }
+    }
+};
+
+try {
+    validator(schema).validate({
+        firstName: 'John',
+        lastName: 'Doe',
+        address: {
+            city: 'Boston',
+            postal: '02115',    // postal code is invalid, must be an integer
+            state: 'MA',
+            country: 'USA'
+        }
+    });
+}
+catch (e) {
+    console.log(JSON.stringify(e, null, '  '));
+}
+
+/*
+Output:
+{
+  "key": "",
+  "errors": [
+    {
+      "key": "address",
+      "errors": [
+        {
+          "key": "postal",
+          "message": "invalid",
+          "missing": false,
+          "required": false
+        }
+      ],
+      "message": "invalid",
+      "missing": false,
+      "required": false
+    }
+  ],
+  "message": "invalid",
+  "missing": false,
+  "required": true
+}
+*/
+```
+
+## Custom Error Messages
+
+When dealing with validation errors, it is often required to customize the error messages when validation fails. For example, validator middleware used for sanitizing input to REST endpoints may want to return validation errors in a JSON response with HTTP status code 400. `request-validator` allows for fully customizable error messages.
+
+The simplest way to customize the error messages is to specify them directly in the schema:
+
+```javascript
+var schema = {
+    type: 'object',
+    required: ['name', 'age'],
+    message: 'Invalid profile data.',
+    properties: {
+        name: {
+            type: 'string',
+            requiredMessage: 'Please specify your name.',
+            message: 'Invalid name of registrant.'
+        },
+        age: {
+            type: 'integer',
+            requiredMessage: 'Please specify your age',
+            message: 'Invalid age.'
+        }
+    }
+};
+
+try {
+    validator(schema).validate({ age: '' });
+}
+catch (e) {
+    console.log(JSON.stringify(e, null, '  '));
+}
+
+/*
+Output:
+{
+  "key": "",
+  "errors": [
+    {
+      "key": "name",
+      "message": "Please specify your name.",
+      "missing": true,
+      "required": true
+    },
+    {
+      "key": "age",
+      "message": "Invalid age.",
+      "missing": false,
+      "required": true
+    }
+  ],
+  "message": "Invalid profile data.",
+  "missing": false,
+  "required": true
+}
+*/
+```
+
+Alternatively, you can also modify the default string values directly.
+
+```javascript
+validator.strings.required = 'This is a modified required message.';
+validator.strings.invalid = 'This is a modified invalid message.';
+
+var validator2 = validator.create();
+validator2.strings.required = 'This required message is for validator2 only.'
+validator2.strings.invalid = 'This invalid message is for validator2 only.'
+```
+
+**NOTE**: When new validator instances are created using `validator.create()`, the new validator instance receives a copy of the strings object from its parent, along with any user customizations.
+
 ## Running Tests
 
 To run [mocha][mocha] tests:
@@ -632,10 +768,6 @@ app.post('/signin', validator(schema, function (req, res, next) {
     // default value of `false` even if omitted
 }));
 ```
-
-### Better Error Reporting (In The Works)
-
-Ability to better understand where in the object graph did the validation fail.
 
 ### In-Schema Validator Functions
 

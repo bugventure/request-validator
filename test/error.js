@@ -157,19 +157,8 @@ describe('error', function () {
                 assert.fail();
             }
             catch (e) {
-                assert.strictEqual(e.message, 'anonymous: required');
-            }
-
-            try {
-                validator({
-                    title: 'field1',
-                    type: 'string'
-                }).validate();
-
-                assert.fail();
-            }
-            catch (e) {
-                assert.strictEqual(e.message, 'field1: required');
+                assert(e.hasOwnProperty('message'));
+                assert.strictEqual(e.message, 'required');
             }
         });
 
@@ -182,19 +171,8 @@ describe('error', function () {
                 assert.fail();
             }
             catch (e) {
-                assert.strictEqual(e.message, 'anonymous: invalid');
-            }
-
-            try {
-                validator({
-                    title: 'field1',
-                    type: 'string'
-                }).validate(123);
-
-                assert.fail();
-            }
-            catch (e) {
-                assert.strictEqual(e.message, 'field1: invalid');
+                assert(e.hasOwnProperty('message'));
+                assert.strictEqual(e.message, 'invalid');
             }
         });
 
@@ -208,25 +186,12 @@ describe('error', function () {
                 assert.fail();
             }
             catch (e) {
-                assert.strictEqual(e.message, 'anonymous: custom message');
+                assert(e.hasOwnProperty('message'));
+                assert.strictEqual(e.message, 'custom message');
             }
 
             try {
                 validator({
-                    title: 'field1',
-                    type: 'string',
-                    message: 'custom message'
-                }).validate(123);
-
-                assert.fail();
-            }
-            catch (e) {
-                assert.strictEqual(e.message, 'field1: custom message');
-            }
-
-            try {
-                validator({
-                    title: 'field1',
                     type: 'string',
                     message: 'custom message'
                 }).validate();
@@ -234,8 +199,60 @@ describe('error', function () {
                 assert.fail();
             }
             catch (e) {
+                assert(e.hasOwnProperty('message'));
                 // does not apply for required fields
-                assert.strictEqual(e.message, 'field1: required');
+                assert.strictEqual(e.message, 'required');
+            }
+        });
+
+        it('custom required message', function () {
+            try {
+                validator({
+                    type: 'string',
+                    requiredMessage: 'custom message'
+                }).validate();
+
+                assert.fail();
+            }
+            catch (e) {
+                assert(e.hasOwnProperty('message'));
+                assert.strictEqual(e.message, 'custom message');
+            }
+        });
+
+        it('messages in object graph', function () {
+            var schema = {
+                type: 'object',
+                required: ['a'],
+                properties: {
+                    a: {
+                        type: 'string',
+                        requiredMessage: 'custom required message',
+                        message: 'custom invalid message'
+                    }
+                }
+            };
+
+            try {
+                validator(schema).validate({});
+            }
+            catch (e) {
+                assert(e.hasOwnProperty('message'));
+                assert.strictEqual(e.message, 'invalid');
+
+                assert(e.errors[0].hasOwnProperty('message'));
+                assert.strictEqual(e.errors[0].message, 'custom required message');
+            }
+
+            try {
+                validator(schema).validate({ a: 123 });
+            }
+            catch (e) {
+                assert(e.hasOwnProperty('message'));
+                assert.strictEqual(e.message, 'invalid');
+
+                assert(e.errors[0].hasOwnProperty('message'));
+                assert.strictEqual(e.errors[0].message, 'custom invalid message');
             }
         });
     });

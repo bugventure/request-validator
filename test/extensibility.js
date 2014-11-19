@@ -69,7 +69,7 @@ describe('extensibility', function () {
                 assert.fail();
             }
             catch (e) {
-                assert.strictEqual(e.message, 'field1: predefined message');
+                assert.strictEqual(e.message, 'predefined message');
             }
         });
 
