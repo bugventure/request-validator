@@ -30,35 +30,34 @@ catch (e) {
     error = e;
 }
 
-testCategories = [testCategories[0]];
+function addTestCase(testCase) {
+    it(testCase.description, function () {
+        testCase.tests.forEach(function (test) {
+            var validatorFunc = test.valid ?
+                assert.doesNotThrow :
+                assert.throws;
+
+            validatorFunc(function () {
+                validator(testCase.schema).validate(test.data);
+            }, test.description);
+        });
+    });
+}
+
+function addTestCategory(testCategory) {
+    describe(testCategory.name, function () {
+        testCategory.tests.forEach(addTestCase);
+    });
+}
 
 describe('JSON-schema test suite', function () {
     if (error) {
         it('error', function () {
             assert.fail(error.message);
         });
-
-        return;
     }
-
-    testCategories.forEach(function (testCategory) {
-        describe(testCategory.name, function () {
-            testCategory.tests.forEach(function (testCase) {
-                it(testCase.description, function () {
-                    // var validate = validator(testCase.schema).validate;
-
-                    testCase.tests.forEach(function (test) {
-                        var validatorFunc = test.valid ?
-                            assert.doesNotThrow :
-                            assert.throws;
-
-                        validatorFunc(function () {
-                            // validate(test.data);
-                            validator(testCase.schema).validate(test.data);
-                        }, test.description);
-                    });
-                });
-            });
-        });
-    });
+    else {
+        // testCategories.forEach(addTestCategory);
+        [].forEach(addTestCategory);
+    }
 });
