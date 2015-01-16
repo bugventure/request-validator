@@ -5,7 +5,7 @@ var fs = require('fs'),
     path = require('path'),
     assert = require('assert'),
     validator = require('../index.js'),
-    dir = 'JSON-Schema-Test-Suite/tests/draft4',
+    dir = 'draft4-test-suite',
     files,
     testCategories = [],
     error;
