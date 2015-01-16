@@ -38,6 +38,7 @@ Flexible, schema-based request paramater validator middleware for express and co
 - [Running Tests](#running-tests)
 - [Issues](#issues)
 - [Changelog](#changelog)
+    - [v0.3.1](#v031)
     - [v0.3.0](#v030)
     - [v0.2.1](#v021)
 - [Futures](#futures)
@@ -815,6 +816,11 @@ Source code coverage is provided by [istanbul][istanbul] and visible on [coveral
 Please submit issues to the [request-validator issue tracker in GitHub](https://github.com/bugventure/request-validator/issues).
 
 ## Changelog
+
+### v0.3.1
+
+* Fix type-specific keywords require a type definition in the schema (#8)
+* Fix failure to conform to the JSON-Schema-Test-Suite (#9)
 
 ### v0.3.0
 
