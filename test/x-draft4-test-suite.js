@@ -21,7 +21,7 @@ try {
         if (stat.isFile() && path.extname(filename) === '.json') {
             testCategories.push({
                 name: path.basename(filename, '.json'),
-                tests: require(fullpath)
+                testGroups: require(fullpath)
             });
         }
     });
@@ -30,23 +30,30 @@ catch (e) {
     error = e;
 }
 
-function addTestCase(testCase) {
-    it(testCase.description, function () {
-        testCase.tests.forEach(function (test) {
-            var validatorFunc = test.valid ?
-                assert.doesNotThrow :
-                assert.throws;
+testCategories = [];
+// testCategories = [testCategories[23]];
 
-            validatorFunc(function () {
-                validator(testCase.schema).validate(test.data);
-            }, test.description);
-        });
+function addTestCase(schema, testCase) {
+    it(testCase.description, function () {
+        var validatorFunc = testCase.valid ?
+            assert.doesNotThrow :
+            assert.throws;
+
+        validatorFunc(function () {
+            validator(schema).validate(testCase.data);
+        }, testCase.description);
+    });
+}
+
+function addTestGroup(testGroup) {
+    describe(testGroup.description, function () {
+        testGroup.tests.forEach(addTestCase.bind(null, testGroup.schema));
     });
 }
 
 function addTestCategory(testCategory) {
     describe(testCategory.name, function () {
-        testCategory.tests.forEach(addTestCase);
+        testCategory.testGroups.forEach(addTestGroup);
     });
 }
 
@@ -57,7 +64,6 @@ describe('JSON-schema test suite', function () {
         });
     }
     else {
-        // testCategories.forEach(addTestCategory);
-        [].forEach(addTestCategory);
+        testCategories.forEach(addTestCategory);
     }
 });

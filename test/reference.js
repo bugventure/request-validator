@@ -19,12 +19,12 @@ describe('$ref', function () {
         });
 
         assert.throws(function () {
-            // invalid reference
+            // invalid reference, non-existent schema properties
             validator({ $ref: '#a/b/c' });
         });
 
-        assert.throws(function () {
-            // resolved schema does not have a type
+        assert.doesNotThrow(function () {
+            // schema resolves to itself
             validator({ $ref: '#' });
         });
 
