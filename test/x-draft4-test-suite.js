@@ -37,11 +37,24 @@ function addTestCase(schema, testCase) {
     it(testCase.description, function () {
         var validatorFunc = testCase.valid ?
             assert.doesNotThrow :
-            assert.throws;
+            assert.throws,
+            prejson = JSON.stringify(schema),
+            postjson;
 
         validatorFunc(function () {
-            validator(schema).validate(testCase.data);
+            try {
+                validator(schema).validate(testCase.data);
+            }
+            catch (e) {
+                throw e;
+            }
+            finally {
+                postjson = JSON.stringify(schema);
+            }
+
         }, testCase.description);
+
+        assert.strictEqual(prejson, postjson, 'validator does not modify original JSON');
     });
 }
 
