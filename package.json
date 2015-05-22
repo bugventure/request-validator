@@ -1,6 +1,6 @@
 {
   "name": "request-validator",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Schema-based request validation middleware for express and connect.",
   "author": "Veli Pehlivanov <bugventure@gmail.com>",
   "main": "index.js",
