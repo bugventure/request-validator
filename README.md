@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/bugventure/request-validator.png?label=ready&title=Ready)](https://waffle.io/bugventure/request-validator)
 request-validator
 =================
 
